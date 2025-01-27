@@ -11,9 +11,9 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const vendorRes = await axios.get('http://localhost:5000/admin/vendors');
-        const customerRes = await axios.get('http://localhost:5000/admin/customers');
-        const productRes = await axios.get('http://localhost:5000/admin/products');
+        const vendorRes = await axios.get('http://localhost:5001/admin/vendors');
+        const customerRes = await axios.get('http://localhost:5001/admin/customers');
+        const productRes = await axios.get('http://localhost:5001/admin/products');
         setVendors(vendorRes.data);
         setCustomers(customerRes.data);
         setProducts(productRes.data);
@@ -26,7 +26,7 @@ const AdminDashboard = () => {
 
   const handleDelete = async (type, id) => {
     try {
-      await axios.delete(`http://localhost:5000/admin/${type}/${id}`);
+      await axios.delete(`http://localhost:5001/admin/${type}/${id}`);
       alert(`${type.slice(0, -1).toUpperCase()} deleted successfully`);
       if (type === 'vendors') setVendors(vendors.filter((vendor) => vendor._id !== id));
       if (type === 'customers') setCustomers(customers.filter((customer) => customer._id !== id));
