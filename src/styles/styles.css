@@ -1,0 +1,82 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #FF5A4E; /* Primary color from the logo */
+    color: #D84B3D;
+  }
+  
+  /* Hero Section */
+  .hero-section {
+    background-color: #FBB040; /* Secondary color */
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #FF5A4E;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  }
+  
+  .hero-section h1 {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #D84B3D;
+  }
+  
+  .hero-section p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #D84B3D;
+  }
+  
+  /* Category Cards */
+  .category-card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .category-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .category-card img {
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  /* Navbar */
+  .navbar-custom {
+    background-color: #D84B3D !important;
+  }
+  
+  .navbar-custom .nav-link {
+    color: #FBB040 !important;
+    font-weight: bold;
+  }
+  
+  /* Footer */
+  footer {
+    background-color: #D84B3D;
+    color: #FBB040;
+    text-align: center;
+    padding: 15px 0;
+  }
+  
+  button {
+    background-color: #FF5A4E;
+    border: none;
+    color: #FFFFFF;
+    padding: 12px 24px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    transition: background 0.3s;
+  }
+  
+  button:hover {
+    background-color: #D84B3D;
+  }
