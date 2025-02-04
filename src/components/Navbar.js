@@ -100,7 +100,7 @@ const Navigation = ({ bgColor = "#FF5A4E" }) => {
             ))}
 
             {/* Enhanced Search with Suggestions */}
-            <div className="position-relative ms-lg-3">
+            {/* <div className="position-relative ms-lg-3">
               <Form className="d-flex search-wrapper">
                 <div className="search-container">
                   <FiSearch className="search-icon" />
@@ -137,7 +137,7 @@ const Navigation = ({ bgColor = "#FF5A4E" }) => {
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Account Dropdown */}
             <NavDropdown 
@@ -159,7 +159,6 @@ const Navigation = ({ bgColor = "#FF5A4E" }) => {
                   </div>
                   <div>
                     <h6 className="mb-0" style={{ color: "#FF5A4E" }}>John Doe</h6>
-                    <small className="text-muted">Premium Member</small>
                   </div>
                 </div>
               </div>

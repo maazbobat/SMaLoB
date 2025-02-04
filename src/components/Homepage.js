@@ -305,7 +305,7 @@ const Homepage = () => {
       </section>
 
       {/* Newsletter Section */}
-      <section className="newsletter bg-light py-5">
+      {/* <section className="newsletter bg-light py-5">
         <Container className="text-center">
           <h2 className="h1 fw-bold mb-4">Stay Connected</h2>
           <p className="mb-4">Get updates on new products and local deals</p>
@@ -326,7 +326,7 @@ const Homepage = () => {
             </InputGroup>
           </Form>
         </Container>
-      </section>
+      </section> */}
 
       {/* Quick View Modal */}
       <Modal show={showQuickView} onHide={() => setShowQuickView(false)} centered>
