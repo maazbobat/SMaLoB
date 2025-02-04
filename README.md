@@ -1,70 +1,117 @@
-# Getting Started with Create React App
+# SMaLoB Marketplace
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+SMaLoB is a full-stack e-commerce platform allowing vendors to sell products and customers to purchase items seamlessly. The platform includes user authentication, email verification, password recovery, and a secure payment gateway.
 
-## Available Scripts
+## 🚀 Features
 
-In the project directory, you can run:
+- User authentication (Signup, Login, Logout)
+- Role-based access control (Admin, Vendor, Customer)
+- Email verification & password reset
+- Product listing & vendor management
+- Payment gateway integration
+- Responsive UI with Bootstrap
+- JWT-based authentication
 
-### `npm start`
+## 🛠️ Technologies Used
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### **Frontend**
+- React.js (with React Router)
+- Bootstrap for styling
+- Axios for API calls
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### **Backend**
+- Node.js & Express.js
+- MongoDB with Mongoose
+- JWT for authentication
+- Nodemailer for email services
 
-### `npm test`
+## 🔧 Installation & Setup
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### **Prerequisites**
+Ensure you have the following installed:
+- Node.js & npm
+- MongoDB (Local or Atlas)
+- Git
 
-### `npm run build`
+### **Clone the repository**
+```bash
+git clone https://github.com/maazbobat/SMaLoB.git
+cd SMaLoB
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### **Backend Setup**
+```bash
+cd backend
+npm install
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Create a `.env` file in the `backend` directory and add:
+```env
+PORT=5001
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_secret_key
+EMAIL_USER=your_email@example.com
+EMAIL_PASSWORD=your_email_password
+CLIENT_URL=http://localhost:3000
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Start the backend server:
+```bash
+npm run dev
+```
 
-### `npm run eject`
+### **Frontend Setup**
+```bash
+cd frontend
+npm install
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Start the frontend:
+```bash
+npm start
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 📩 API Endpoints
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### **Authentication Routes**
+- `POST /auth/signup` - Register new users
+- `POST /auth/login` - User login
+- `GET /auth/verify-email/:token` - Verify user email
+- `POST /auth/forgot-password` - Send password reset email
+- `POST /auth/reset-password/:token` - Reset password
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### **Product Routes**
+- `GET /products` - Fetch all products
+- `POST /products` - Add a new product (Vendor only)
 
-## Learn More
+## 📌 Deployment
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### **Deploying Frontend on Netlify**
+1. Push your frontend code to GitHub.
+2. Log in to [Netlify](https://www.netlify.com/) and connect your GitHub repo.
+3. Set the build command as:
+   ```bash
+   npm run build
+   ```
+4. Set `PUBLIC_URL` in Netlify environment variables.
+5. Deploy and get the live URL!
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### **Deploying Backend on Render**
+1. Push your backend code to GitHub.
+2. Log in to [Render](https://render.com/) and create a new web service.
+3. Connect your repository and set environment variables.
+4. Deploy and get the backend live!
 
-### Code Splitting
+## 🤝 Contribution
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature-name`)
+3. Commit changes (`git commit -m 'Added new feature'`)
+4. Push to your fork (`git push origin feature-name`)
+5. Create a Pull Request
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 📜 License
+This project is open-source and available under the MIT License.
 
-### Analyzing the Bundle Size
+---
+🚀 **Developed by Maaz Bobat & Contributors**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
