@@ -146,16 +146,23 @@ exports.forgotPassword = async (req, res) => {
         const { email } = req.body;
         const user = await User.findOne({ email });
 
-        if (!user) return res.json({ message: 'If the email exists, a password reset link has been sent' });
+        if (!user) {
+            return res.json({ message: 'If the email exists, a password reset link has been sent' });
+        }
 
+        // Generate a secure token
         const resetToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
+        // Save token to database
         user.resetPasswordToken = resetToken;
-        user.resetPasswordExpires = Date.now() + 3600000;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour expiration
         await user.save();
 
-        await sendPasswordResetEmail(email, resetToken);
+        // Send password reset email
+        await sendPasswordResetEmail(user.email, resetToken);
+
         res.json({ message: 'Password reset link sent successfully' });
+
     } catch (error) {
         console.error('Forgot password error:', error);
         res.status(500).json({ message: 'Failed to process password reset request' });
@@ -167,18 +174,23 @@ exports.resetPassword = async (req, res) => {
     try {
         const { token } = req.params;
         const { password } = req.body;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findOne({ _id: decoded.userId, resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } });
 
-        if (!user) return res.status(400).json({ message: 'Invalid or expired reset token' });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired reset token' });
+        }
 
+        // Hash new password
         user.password = await bcrypt.hash(password, 10);
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
         await user.save();
 
         res.json({ message: 'Password reset successfully' });
+
     } catch (error) {
         console.error('Password reset error:', error);
         res.status(400).json({ message: 'Invalid or expired reset token' });

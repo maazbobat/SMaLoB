@@ -8,8 +8,11 @@ import AdminDashboard from './components/AdminDashboard';
 import VendorDashboard from './components/VendorDashboard';
 import CustomerDashboard from './components/CustomerDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
-import VerifyEmail from './components/VerifyEmail'; // Create this component
-import Unauthorized from './components/Unauthorized'; // Create this component
+import VerifyEmail from './components/VerifyEmail';
+import Unauthorized from './components/Unauthorized';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
+
 
 function App() {
   return (
@@ -23,6 +26,9 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/verify-email/:token" element={<VerifyEmail />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+
 
             {/* Protected routes */}
             <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>

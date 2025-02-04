@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Container, Row, Col, Form, Button, Navbar, Nav, FloatingLabel, Alert } from 'react-bootstrap';
+import { Container, Form, Button, Navbar, Nav, FloatingLabel, Alert } from 'react-bootstrap';
 import { FiMail, FiLock, FiLogIn } from 'react-icons/fi';
 import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
@@ -47,30 +47,24 @@ const Login = () => {
         email: formData.email,
         password: formData.password
       });
-  
-      console.log("✅ Login response:", response.data);
-  
+
       const { token, role } = response.data;
-      
-      login(token, role); // ✅ Update AuthContext
-  
+      login(token, role);
+
       const dashboardPaths = {
         Admin: '/admin-dashboard',
         Vendor: '/vendor-dashboard',
         Customer: '/customer-dashboard'
       };
-  
-      console.log("🔄 Redirecting to:", dashboardPaths[role]);
+
       navigate(dashboardPaths[role] || '/');
   
     } catch (error) {
-      console.error("❌ Login failed:", error.response?.data || error.message);
       setError(error.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
-  
 
   const handleResendVerification = async () => {
     try {
@@ -86,112 +80,116 @@ const Login = () => {
       <Navbar className="navbar-custom shadow-sm" expand="lg" sticky="top">
         <Container>
           <Navbar.Brand as={Link} to="/">
-            <img src={logo} alt="SMaLoB Logo" height="60" />
+            <img src={logo} alt="SMaLoB Logo" height="50" />
           </Navbar.Brand>
-          <Navbar.Toggle aria-controls="main-nav" style={{ borderColor: '#FBB040' }} />
-          <Navbar.Collapse id="main-nav">
-            <Nav className="ms-auto align-items-center">
-              <Nav.Link as={Link} to="/home" className="mx-2">Home</Nav.Link>
-              <Nav.Link as={Link} to="/about" className="mx-2">About</Nav.Link>
-              <Nav.Link as={Link} to="/services" className="mx-2">Services</Nav.Link>
-              <Nav.Link as={Link} to="/contact" className="mx-2">Contact</Nav.Link>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="ms-auto">
+              <Nav.Link as={Link} to="/home">Home</Nav.Link>
+              <Nav.Link as={Link} to="/about">About</Nav.Link>
+              <Nav.Link as={Link} to="/services">Services</Nav.Link>
+              <Nav.Link as={Link} to="/contact">Contact</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
 
       <Container className="my-auto py-5">
-        <Row className="justify-content-center">
-          <Col md={8} lg={6} xl={5}>
-            <div className="text-center mb-5">
-              <h2 className="display-5 fw-bold brand-red">Welcome Back</h2>
-              <p className="text-muted">Sign in to your SMaLoB account</p>
+        <div className="mx-auto" style={{ maxWidth: '500px' }}>
+          <div className="text-center mb-5">
+            <h2 className="display-5 fw-bold mb-3" style={{ color: '#FF5A4E' }}>Welcome Back</h2>
+            <p className="text-muted">Sign in to your SMaLoB account</p>
+          </div>
+
+          <Form onSubmit={handleLoginSubmit} className="bg-white p-4 rounded-4 shadow">
+            {error && (
+              <Alert variant="danger" className="text-center">
+                {error}
+                {verificationEmail && (
+                  <div className="mt-2">
+                    <Button 
+                      variant="link" 
+                      onClick={handleResendVerification}
+                      className="text-danger p-0"
+                    >
+                      Resend Verification Email
+                    </Button>
+                  </div>
+                )}
+              </Alert>
+            )}
+
+            <FloatingLabel controlId="email" label="Email Address" className="mb-3">
+              <Form.Control
+                type="email"
+                name="email"
+                placeholder="Enter email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                className="border-2 py-3"
+                style={{ borderColor: '#FBB040' }}
+              />
+              <FiMail className="position-absolute top-50 end-0 translate-middle-y me-3" style={{ color: '#FBB040' }} />
+            </FloatingLabel>
+
+            <FloatingLabel controlId="password" label="Password" className="mb-4">
+              <Form.Control
+                type="password"
+                name="password"
+                placeholder="Enter password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                className="border-2 py-3"
+                style={{ borderColor: '#FBB040' }}
+              />
+              <FiLock className="position-absolute top-50 end-0 translate-middle-y me-3" style={{ color: '#FBB040' }} />
+            </FloatingLabel>
+
+            <Button 
+              type="submit" 
+              className="w-100 py-3 fw-bold border-0"
+              style={{ 
+                backgroundColor: '#FF5A4E',
+                transition: 'all 0.3s ease',
+              }}
+              disabled={loading}
+              onMouseOver={(e) => !loading && (e.target.style.transform = 'translateY(-2px)')}
+              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+            >
+              {loading ? (
+                <span>Authenticating...</span>
+              ) : (
+                <>
+                  <FiLogIn className="me-2" />
+                  Sign In
+                </>
+              )}
+            </Button>
+
+            <div className="text-center mt-4">
+              <Link 
+                to="/forgot-password" 
+                className="text-decoration-none small fw-bold"
+                style={{ color: '#FF5A4E' }}
+              >
+                Forgot Password?
+              </Link>
             </div>
 
-            <Form onSubmit={handleLoginSubmit} className="auth-form">
-              {error && (
-                <Alert variant="danger" className="text-center">
-                  {error}
-                  {verificationEmail && (
-                    <div className="mt-2">
-                      <Button 
-                        variant="link" 
-                        onClick={handleResendVerification}
-                        className="text-danger p-0"
-                      >
-                        Resend Verification Email
-                      </Button>
-                    </div>
-                  )}
-                </Alert>
-              )}
-
-              <FloatingLabel label="Email Address" className="mb-4">
-              <Form.Control
-  type="email"
-  name="email"
-  value={formData.email}
-  onChange={handleInputChange}
-  placeholder="Enter email"
-/>
-                <FiMail className="input-icon" />
-              </FloatingLabel>
-
-              <FloatingLabel label="Password" className="mb-4">
-              <Form.Control
-  type="password"
-  name="password"
-  value={formData.password}
-  onChange={handleInputChange}
-  placeholder="Enter password"
-/>
-                <FiLock className="input-icon" />
-              </FloatingLabel>
-
-              <Button 
-                type="submit" 
-                variant="primary" 
-                className="w-100 auth-button"
-                disabled={loading}
+            <p className="text-center mt-4 mb-0">
+              Don't have an account?{' '}
+              <Link 
+                to="/signup" 
+                className="text-decoration-none fw-bold"
+                style={{ color: '#FF5A4E' }}
               >
-                {loading ? (
-                  <span>Authenticating...</span>
-                ) : (
-                  <>
-                    <FiLogIn className="me-2" />
-                    Sign In
-                  </>
-                )}
-                {error && verificationEmail && (
-      <div className="mt-2">
-        <Button variant="link" onClick={handleResendVerification}>
-          Resend Verification Email
-        </Button>
-      </div>
-    )}
-              </Button>
-
-              <div className="text-center mt-4">
-                <Link 
-                  to="/forgot-password" 
-                  className="text-decoration-none small brand-link"
-                >
-                  Forgot Password?
-                </Link>
-              </div>
-
-              <p className="text-center mt-4 mb-0 text-muted">
-                New user?{' '}
-                <Link 
-                  to="/signup" 
-                  className="text-decoration-none fw-bold brand-link"
-                >
-                  Create Account
-                </Link>
-              </p>
-            </Form>
-          </Col>
-        </Row>
+                Create Account
+              </Link>
+            </p>
+          </Form>
+        </div>
       </Container>
 
       <Footer />
