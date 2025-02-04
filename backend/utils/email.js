@@ -20,7 +20,7 @@ const sendVerificationEmail = async (email, token) => {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border-radius: 8px; background: #fff; border: 1px solid #ddd; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
         <div style="text-align: center;">
-          <img src="https://yourdomain.com/logo.png" alt="SMaLoB Logo" style="max-width: 120px; margin-bottom: 20px;" />
+          <img src= "https://github.com/maazbobat/SMaLoB/blob/main/src/assets/logo/logo_transparent.png" alt="SMaLoB Logo" style="max-width: 120px; margin-bottom: 20px;" />
           <h2 style="color: #FF5A4E;">Welcome to SMaLoB!</h2>
           <p style="color: #333;">Thank you for signing up. Please verify your email address to activate your account.</p>
         </div>
@@ -50,7 +50,7 @@ const sendPasswordResetEmail = async (email, token) => {
           html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border-radius: 8px; background: #fff; border: 1px solid #ddd; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
                 <div style="text-align: center;">
-                  <img src="https://yourdomain.com/logo.png" alt="SMaLoB Logo" style="max-width: 120px; margin-bottom: 20px;" />
+                  <img src = "https://github.com/maazbobat/SMaLoB/blob/main/src/assets/logo/logo_transparent.png" alt="SMaLoB Logo" style="max-width: 120px; margin-bottom: 20px;" />
                   <h2 style="color: #FF5A4E;">Reset Your Password</h2>
                   <p style="color: #333;">Forgot your password? No worries! Click the button below to set a new one.</p>
                 </div>
