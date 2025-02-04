@@ -1,10 +1,34 @@
-import React from "react";
+// Enhanced Footer.js
+import React, { useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaEnvelope } from "react-icons/fa";
+import { 
+  FaFacebookF, 
+  FaTwitter, 
+  FaInstagram, 
+  FaLinkedinIn, 
+  FaEnvelope,
+  FaCcVisa,
+  FaCcMastercard,
+  FaCcPaypal,
+  FaCcApplePay
+} from "react-icons/fa";
+import { FiCheckCircle } from "react-icons/fi";
 import "../styles/styles.css";
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+      setSubscribed(true);
+      setTimeout(() => setSubscribed(false), 3000);
+      setEmail("");
+    }
+  };
+
   return (
     <footer className="footer-custom bg-dark text-light pt-5 border-top border-secondary">
       <Container>
@@ -19,18 +43,23 @@ const Footer = () => {
               </p>
             </div>
             <div className="social-icons d-flex gap-3">
-              <a href="/" className="text-decoration-none" style={{ color: "#FBB040" }}>
-                <FaFacebookF className="icon-hover" />
-              </a>
-              <a href="/" className="text-decoration-none" style={{ color: "#FBB040" }}>
-                <FaTwitter className="icon-hover" />
-              </a>
-              <a href="/" className="text-decoration-none" style={{ color: "#FBB040" }}>
-                <FaInstagram className="icon-hover" />
-              </a>
-              <a href="/" className="text-decoration-none" style={{ color: "#FBB040" }}>
-                <FaLinkedinIn className="icon-hover" />
-              </a>
+              {[
+                { icon: <FaFacebookF />, link: "#" },
+                { icon: <FaTwitter />, link: "#" },
+                { icon: <FaInstagram />, link: "#" },
+                { icon: <FaLinkedinIn />, link: "#" }
+              ].map((social, index) => (
+                <a 
+                  key={index}
+                  href={social.link}
+                  className="social-icon"
+                  style={{ color: "#FBB040" }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {social.icon}
+                </a>
+              ))}
             </div>
           </Col>
 
@@ -49,7 +78,6 @@ const Footer = () => {
                   <Link 
                     to={to} 
                     className="text-light text-decoration-none footer-link"
-                    style={{ fontSize: "0.9rem" }}
                   >
                     {text}
                   </Link>
@@ -58,53 +86,49 @@ const Footer = () => {
             </ul>
           </Col>
 
-          {/* Legal */}
+          {/* Payment Methods */}
           <Col lg={2} md={4}>
-            <h5 className="text-uppercase mb-4" style={{ color: "#FF5A4E" }}>Legal</h5>
-            <ul className="list-unstyled">
-              {[
-                ['/privacy', 'Privacy Policy'],
-                ['/terms', 'Terms of Service'],
-                ['/cookie', 'Cookie Policy'],
-                ['/security', 'Security'],
-                ['/accessibility', 'Accessibility']
-              ].map(([to, text]) => (
-                <li key={to} className="mb-2">
-                  <Link 
-                    to={to} 
-                    className="text-light text-decoration-none footer-link"
-                    style={{ fontSize: "0.9rem" }}
-                  >
-                    {text}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <h5 className="text-uppercase mb-4" style={{ color: "#FF5A4E" }}>Payments</h5>
+            <div className="d-flex flex-wrap gap-3">
+              <FaCcVisa className="payment-icon" style={{ color: "#FBB040" }} />
+              <FaCcMastercard className="payment-icon" style={{ color: "#FBB040" }} />
+              <FaCcPaypal className="payment-icon" style={{ color: "#FBB040" }} />
+              <FaCcApplePay className="payment-icon" style={{ color: "#FBB040" }} />
+            </div>
           </Col>
 
           {/* Newsletter */}
           <Col lg={4} md={4}>
             <h5 className="text-uppercase mb-4" style={{ color: "#FF5A4E" }}>Stay Updated</h5>
-            <div className="newsletter-form">
+            <form onSubmit={handleSubscribe} className="newsletter-form">
               <div className="input-group mb-3">
                 <input 
                   type="email" 
                   className="form-control bg-transparent border-secondary" 
                   placeholder="Enter your email" 
                   style={{ color: "#FBB040" }}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
                 <button 
                   className="btn btn-outline-light" 
-                  type="button"
+                  type="submit"
                   style={{ borderColor: "#FBB040", color: "#FBB040" }}
+                  disabled={subscribed}
                 >
-                  <FaEnvelope />
+                  {subscribed ? <FiCheckCircle /> : <FaEnvelope />}
                 </button>
               </div>
+              {subscribed && (
+                <div className="subscription-success small" style={{ color: "#FBB040" }}>
+                  Thanks for subscribing!
+                </div>
+              )}
               <p className="text-muted small">
                 Subscribe to our newsletter for latest updates and offers
               </p>
-            </div>
+            </form>
           </Col>
         </Row>
 
