@@ -1,126 +1,184 @@
-import React from "react";
-import { Link, } from "react-router-dom";
-import {
-  Container,
-  Row,
-  Col,
-  Button,
-  Card,
-  Navbar,
-  Nav,
-} from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import Navigation from "./Navbar";
+import Footer from "./Footer";
+import { Container, Row, Col, Button, Card } from "react-bootstrap";
+import { FiArrowRight, FiShoppingBag, FiStar } from "react-icons/fi";
+import axios from "axios";
 import "../styles/styles.css";
 import logo from "../assets/logo/logo_transparent.png";
-import restaurantImg from "../assets/images/restaurant.png";
-import shopImg from "../assets/images/shop.png";
-import serviceImg from "../assets/images/service.png";
 
 const Homepage = () => {
-  // const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
+  const [vendors, setVendors] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productsRes, vendorsRes] = await Promise.all([
+          axios.get("http://localhost:5001/products"),
+          axios.get("http://localhost:5001/vendors"),
+        ]);
+        setProducts(productsRes.data);
+        setVendors(vendorsRes.data);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    <>
-      <Navbar className="navbar-custom" expand="lg">
-        <Container>
-          <Navbar.Brand href="/">
-            <img src={logo} alt="SMaLoB Logo" height="50" />
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ms-auto">
-              <Nav.Link href="/">Home</Nav.Link>
-              <Nav.Link as={Link} to="/products">
-                Products
-              </Nav.Link>
-              <Nav.Link as={Link} to="/cart">
-                Cart
-              </Nav.Link>
-              <Nav.Link as={Link} to="/logout">
-                Logout
-              </Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
+    <div className="homepage">
+      <Navigation />
+
+      {/* Modern Hero Section */}
+      <section className="hero-section py-5 bg-gradient" style={{ backgroundColor: '#FF5A4E' }}>
+        <Container className="py-5">
+          <Row className="align-items-center">
+            <Col md={6} className="text-white pe-5">
+              <h1 className="display-4 fw-bold mb-4">
+                Discover Local Treasures
+                <span style={{ color: '#FBB040' }}>.</span>
+              </h1>
+              <p className="lead mb-4">
+                Support local businesses and find unique products in your community
+              </p>
+              <Button 
+                variant="light" 
+                size="lg" 
+                className="rounded-pill px-4"
+                style={{ color: '#FF5A4E' }}
+              >
+                Start Exploring <FiArrowRight className="ms-2" />
+              </Button>
+            </Col>
+            <Col md={6} className="text-center">
+              <img 
+                src={logo} 
+                alt="SMaLoB Logo" 
+                className="img-fluid hero-logo" 
+                style={{ maxWidth: '400px' }}
+              />
+            </Col>
+          </Row>
         </Container>
-      </Navbar>
+      </section>
 
-      <header className="hero-section text-center">
+      {/* Featured Products Section */}
+      <section className="py-5">
         <Container>
-          <img src={logo} alt="Hero Image" width="200" />
+          <div className="d-flex justify-content-between align-items-center mb-5">
+            <h2 className="h1 fw-bold">
+              <FiShoppingBag className="me-3" style={{ color: '#FF5A4E' }} />
+              Featured Products
+            </h2>
+            <Button variant="outline-dark" className="rounded-pill">
+              View All <FiArrowRight className="ms-2" />
+            </Button>
+          </div>
+
+          {loading ? (
+            <Row className="g-4">
+              {[1,2,3,4].map((i) => (
+                <Col md={3} key={i}>
+                  <Card className="border-0 h-100">
+                    <div className="placeholder-glow">
+                      <div className="placeholder ratio ratio-1x1 bg-light rounded-4" />
+                      <Card.Body>
+                        <h5 className="card-title placeholder-glow">
+                          <span className="placeholder col-8"></span>
+                        </h5>
+                        <p className="card-text placeholder-glow">
+                          <span className="placeholder col-6"></span>
+                        </p>
+                      </Card.Body>
+                    </div>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          ) : (
+            <Row className="g-4">
+              {products.slice(0,4).map((product) => (
+                <Col md={3} key={product._id}>
+                  <Card className="border-0 h-100 product-card">
+                    <div className="position-relative overflow-hidden rounded-4">
+                      <Card.Img 
+                        variant="top" 
+                        src={product.image ? `http://localhost:5001${product.image}` : "/placeholder.jpg"} 
+                        alt={product.name} 
+                        className="img-fluid"
+                      />
+                      <div className="card-overlay"></div>
+                    </div>
+                    <Card.Body className="pt-3">
+                      <div className="d-flex justify-content-between align-items-start">
+                        <h5 className="mb-0">{product.name}</h5>
+                        <span className="badge bg-warning text-dark">${product.price}</span>
+                      </div>
+                      <p className="text-muted mt-2 small">{product.description}</p>
+                      <Button 
+                        variant="outline-dark" 
+                        size="sm" 
+                        className="rounded-pill w-100"
+                      >
+                        Add to Cart
+                      </Button>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          )}
         </Container>
-      </header>
+      </section>
 
-      <Container className="mt-5">
-        <h2 className="text-center mb-4">Featured Products</h2>
-        <Row className="product-scroll">
-          <Col md={3}>
-            <Card className="product-card">
-              <Card.Img variant="top" src={restaurantImg} alt="Product" />
-              <Card.Body>
-                <Card.Title>Title</Card.Title>
-                <Card.Text>Price</Card.Text>
-                <Card.Text>Description</Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col md={3}>
-            <Card className="product-card">
-              <Card.Img variant="top" src={shopImg} alt="Product" />
-              <Card.Body>
-                <Card.Title>Title</Card.Title>
-                <Card.Text>Price</Card.Text>
-                <Card.Text>Description</Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col md={3}>
-            <Card className="product-card">
-              <Card.Img variant="top" src={serviceImg} alt="Product" />
-              <Card.Body>
-                <Card.Title>Title</Card.Title>
-                <Card.Text>Price</Card.Text>
-                <Card.Text>Description</Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-        <div className="text-center mt-3">
-          <Button variant="dark">Explore more products</Button>
-        </div>
-      </Container>
+      {/* Featured Vendors Section */}
+      <section className="py-5 bg-light">
+        <Container>
+          <h2 className="h1 fw-bold mb-5 text-center">
+            <FiStar className="me-3" style={{ color: '#FF5A4E' }} />
+            Top Vendors
+          </h2>
+          
+          <Row className="g-4">
+            {vendors.slice(0,4).map((vendor) => (
+              <Col md={3} key={vendor._id}>
+                <Card className="border-0 text-center vendor-card">
+                  <div className="position-relative">
+                    <div className="vendor-image-wrapper">
+                      <Card.Img 
+                        variant="top" 
+                        src={`http://localhost:5001${vendor.profileImage}`} 
+                        alt={vendor.name} 
+                        className="rounded-circle mx-auto mt-3"
+                        style={{ width: '120px', height: '120px', objectFit: 'cover' }}
+                      />
+                    </div>
+                  </div>
+                  <Card.Body>
+                    <Card.Title>{vendor.name}</Card.Title>
+                    <Button 
+                      variant="outline-dark" 
+                      size="sm" 
+                      className="rounded-pill px-4"
+                    >
+                      View Shop
+                    </Button>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </Container>
+      </section>
 
-      <Container className="mt-5">
-        <h2 className="text-center mb-4">Vendors</h2>
-        <Row className="vendor-scroll">
-          <Col md={3}>
-            <Card className="vendor-card">
-              <Card.Img variant="top" src={restaurantImg} alt="Vendor" />
-              <Card.Body>
-                <Card.Title>Name</Card.Title>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col md={3}>
-            <Card className="vendor-card">
-              <Card.Img variant="top" src={shopImg} alt="Vendor" />
-              <Card.Body>
-                <Card.Title>Name</Card.Title>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col md={3}>
-            <Card className="vendor-card">
-              <Card.Img variant="top" src={serviceImg} alt="Vendor" />
-              <Card.Body>
-                <Card.Title>Name</Card.Title>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-
-      <footer className="text-center bg-dark text-light p-3 mt-5">
-        <p>&copy; 2024 SMaLoB Marketplace. All Rights Reserved.</p>
-      </footer>
-    </>
+      <Footer />
+    </div>
   );
 };
 
