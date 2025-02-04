@@ -3,17 +3,15 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Container, Row, Col, Form, Button, Navbar, Nav, FloatingLabel, Alert } from 'react-bootstrap';
 import { FiMail, FiLock, FiLogIn } from 'react-icons/fi';
 import api from '../api/api';
-import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../context/AuthContext';
 import Footer from './Footer';
 import '../styles/styles.css';
 import logo from '../assets/logo/logo_transparent.png';
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [verificationEmail, setVerificationEmail] = useState('');
+  const [verificationEmail] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const [formData, setFormData] = useState({
@@ -39,7 +37,6 @@ const Login = () => {
     });
   };
 
-  // Login.js
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -49,18 +46,22 @@ const Login = () => {
       const response = await api.post('/auth/login', {
         email: formData.email,
         password: formData.password
-      }, {
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true, // Needed if using cookies
       });
   
       console.log("✅ Login response:", response.data);
   
       const { token, role } = response.data;
-      localStorage.setItem('token', token);
+      
+      login(token, role); // ✅ Update AuthContext
   
-      // Redirect based on role
-      navigate(role === 'Admin' ? '/admin-dashboard' : '/dashboard');
+      const dashboardPaths = {
+        Admin: '/admin-dashboard',
+        Vendor: '/vendor-dashboard',
+        Customer: '/customer-dashboard'
+      };
+  
+      console.log("🔄 Redirecting to:", dashboardPaths[role]);
+      navigate(dashboardPaths[role] || '/');
   
     } catch (error) {
       console.error("❌ Login failed:", error.response?.data || error.message);
