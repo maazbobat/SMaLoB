@@ -56,5 +56,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "description": "SMaLoB is a full-stack e-commerce platform allowing vendors to sell products and customers to purchase items seamlessly. The platform includes user authentication, email verification, password recovery, and a secure payment gateway.",
+  "main": "hashTest.js",
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
 }
