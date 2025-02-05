@@ -1,18 +1,15 @@
 // Enhanced Navbar.js
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Navbar, Nav, NavDropdown, Container, Form, Badge, Spinner } from "react-bootstrap";
-import { FiSearch, FiUser, FiShoppingCart } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import { Navbar, Nav, NavDropdown, Container, Badge } from "react-bootstrap";
+import { FiUser, FiShoppingCart } from "react-icons/fi";
 import { FaChevronUp } from "react-icons/fa";
 import logo from "../assets/logo/logo_transparent.png";
 import PropTypes from "prop-types";
 
 const Navigation = ({ bgColor = "#FF5A4E" }) => {
-  const [cartItems, setCartItems] = useState(3);
+  const [cartItems] = useState(3);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const navigate = useNavigate();
 
   // Scroll effect
   useEffect(() => {
@@ -22,14 +19,6 @@ const Navigation = ({ bgColor = "#FF5A4E" }) => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Search suggestions
-  const suggestions = [
-    "Organic Foods",
-    "Handmade Crafts",
-    "Local Art",
-    "Sustainable Fashion"
-  ];
 
   return (
     <Navbar 
