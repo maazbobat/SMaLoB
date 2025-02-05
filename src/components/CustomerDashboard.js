@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { FiPackage, FiHeart, FiShield, FiDollarSign, FiClock } from 'react-icons/fi';
 import { Line } from 'react-chartjs-2';
+import "../styles/styles.css";
 
 const CustomerDashboard = () => {
   // Mock customer data

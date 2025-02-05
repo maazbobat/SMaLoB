@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FiUsers, FiPackage, FiDollarSign, FiActivity } from 'react-icons/fi';
+import { Chart } from 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
+import "../styles/styles.css";
 
 const AdminDashboard = () => {
   const [activeMenu, setActiveMenu] = useState('dashboard');
