@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import Navbar from "./VendorNavbar";
 import { toast } from "react-toastify";
 import api from "../../api/api";
+import "/Users/maaz/Desktop/SMaLoB/src/styles/vendorDashboard.css"
 
 const VendorDashboard = () => {
   const { user } = useAuth();
@@ -45,7 +46,7 @@ const VendorDashboard = () => {
         return;
       }
 
-      const response = await api.post("/vendors/products", newProduct, {
+      await api.post("/vendors/products", newProduct, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
 
@@ -57,32 +58,46 @@ const VendorDashboard = () => {
     }
   };
 
+  const handleDeleteProduct = async (productId) => {
+    if (!window.confirm("Are you sure you want to delete this product?")) return;
+
+    try {
+      await api.delete(`/vendors/products/${productId}`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+
+      setProducts(products.filter((product) => product._id !== productId));
+      toast.success("✅ Product deleted successfully!");
+    } catch (error) {
+      toast.error("❌ Failed to delete product.");
+    }
+  };
+
   if (loading)
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="loading-container">
         <div className="loader"></div>
+        <p>Loading Dashboard...</p>
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="vendor-dashboard">
       <Navbar />
-      <div className="container mx-auto p-6">
-        <h1 className="text-4xl font-bold text-gray-800 mb-6">Welcome, {vendorData?.name} 👋</h1>
+      <div className="dashboard-container">
+        <h1 className="dashboard-title">Welcome, {vendorData?.name} 👋</h1>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="stats-grid">
           <StatCard icon={<FiPackage />} title="Total Products" value={products.length} />
           <StatCard icon={<FiDollarSign />} title="Total Sales" value="$5000" />
           <StatCard icon={<FiTrendingUp />} title="Revenue Growth" value="10%" />
         </div>
 
         {/* Product Management */}
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <h3 className="text-2xl font-semibold mb-4">Manage Your Products</h3>
-
-          {/* Product Form */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <div className="section-card">
+          <h3 className="section-title">Manage Your Products</h3>
+          <div className="grid-container">
             <input
               type="text"
               placeholder="Product Name"
@@ -113,46 +128,34 @@ const VendorDashboard = () => {
             />
             <textarea
               placeholder="Description"
-              className="input-field col-span-3"
+              className="input-field description-field"
               value={newProduct.description}
               onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
             />
-            <input
-              type="text"
-              placeholder="Image URLs (comma separated)"
-              className="input-field col-span-3"
-              value={newProduct.images?.join(", ") || ""}
-              onChange={(e) => setNewProduct({ ...newProduct, images: e.target.value ? e.target.value.split(", ") : [] })}
-            />
           </div>
-          <button className="btn-primary w-full md:w-auto" onClick={handleAddProduct}>
-            <FiPlus className="mr-1" /> Add Product
+          <button className="btn-primary" onClick={handleAddProduct}>
+            <FiPlus /> Add Product
           </button>
         </div>
 
         {/* Products List */}
-        <div className="bg-white shadow-md rounded-lg p-6 mt-8">
-          <h3 className="text-2xl font-semibold mb-4">Your Products</h3>
+        <div className="section-card">
+          <h3 className="section-title">Your Products</h3>
           {products.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid-container">
               {products.map((product) => (
-                <div key={product._id} className="bg-gray-100 p-4 rounded-lg shadow-sm">
-                  <img
-                    src={product.images?.[0] || "/default-product.jpg"}
-                    alt={product.name}
-                    className="w-full h-40 object-cover rounded-md"
-                  />
-                  <h4 className="text-lg font-semibold mt-3">{product.name}</h4>
-                  <p className="text-gray-500">${product.price}</p>
-                  <p className="text-gray-600 text-sm">{product.stock} in stock</p>
-                  <button className="btn-danger mt-3">
-                    <FiTrash className="mr-1" /> Remove
+                <div key={product._id} className="product-card">
+                  <img src={product.images?.[0] || "/default-product.jpg"} alt={product.name} className="product-img" />
+                  <h4 className="product-name">{product.name}</h4>
+                  <p className="product-price">${product.price}</p>
+                  <button className="btn-danger" onClick={() => handleDeleteProduct(product._id)}>
+                    <FiTrash /> Remove
                   </button>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500">You have no products yet.</p>
+            <p className="no-data">You have no products yet.</p>
           )}
         </div>
       </div>
@@ -161,11 +164,11 @@ const VendorDashboard = () => {
 };
 
 const StatCard = ({ icon, title, value }) => (
-  <div className="bg-white shadow-lg rounded-lg p-6 flex items-center">
-    <div className="text-4xl text-blue-500 mr-4">{icon}</div>
+  <div className="stat-card">
+    <div className="stat-icon">{icon}</div>
     <div>
-      <h4 className="text-lg font-semibold text-gray-600">{title}</h4>
-      <p className="text-2xl font-bold text-gray-800">{value}</p>
+      <h4 className="stat-title">{title}</h4>
+      <p className="stat-value">{value}</p>
     </div>
   </div>
 );

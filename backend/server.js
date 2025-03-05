@@ -4,15 +4,13 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const http = require('http');
+const { Server } = require("socket.io");
 const setupWebSocket = require('./WebSocket');
 
 // Import Routes
 const authRoutes = require('./routes/authRoutes');
-const customerRoutes = require("./routes/customerRoutes");
 const vendorRoutes = require("./routes/vendorRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-const productRoutes = require("./routes/productRoutes");
-const cartRoutes = require("./routes/cartRoutes");
 const orderRoutes = require("./routes/orderRoutes"); 
 const wishlistRoutes = require("./routes/wishlistRoutes");
 
@@ -21,7 +19,20 @@ const { authenticate } = require('./middleware/authMiddleware');
 const app = express();
 const PORT = process.env.PORT || 3001; // Default to 3001 if PORT is undefined
 const server = http.createServer(app);
-setupWebSocket(server);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log(`🔗 User Connected: ${socket.id}`);
+
+  socket.on("disconnect", () => {
+    console.log("❌ User Disconnected");
+  });
+});
 
 // Middleware
 app.use(cors({ origin: process.env.BASE_URL, credentials: true }));
@@ -49,7 +60,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/customers', require('./routes/customerRoutes'));
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/admin', adminRoutes);
-app.use("/api/products", require("./routes/productRoutes"));
+app.use('/api/products', require("./routes/productRoutes"));
 app.use("/api/cart", require("./routes/cartRoutes"));
 app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);

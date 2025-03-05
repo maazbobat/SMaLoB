@@ -1,4 +1,10 @@
 import axios from 'axios';
+import { io } from "socket.io-client";
+
+
+const socket = io("http://localhost:3001");
+
+export { socket };
 
 const api = axios.create({
   baseURL: process.env.NODE_ENV === 'production' 

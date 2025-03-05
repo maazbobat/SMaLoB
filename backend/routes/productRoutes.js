@@ -1,17 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const Product = require("../models/Product");
+const { authenticate } = require("../middleware/authMiddleware");
+const productController = require("../controllers/productController");
 
 // ✅ Fetch all products
-router.get("/", async (req, res) => {
-  try {
-    const products = await Product.find(); // Fetch all products
-    res.json(products);
-  } catch (error) {
-    console.error("🔥 Error fetching products:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+router.get("/", productController.getAllProducts);
 
+// ✅ Add a new product (only vendors can add products)
+router.post("/add", authenticate, productController.addProduct);
+
+// ✅ Delete a product
+router.delete("/:id", authenticate, productController.deleteProduct);
 
 module.exports = router;

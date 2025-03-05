@@ -27,7 +27,7 @@ import VendorProducts from './components/vendor/VendorProducts';
 import VendorOrders from './components/vendor/VendorOrders';
 import VendorProfile from './components/vendor/VendorProfile';
 import VendorSettings from './components/vendor/VendorSettings';
-import VendorAnalytics from './components/vendor/VendorAnalytics';
+
 
 
 function App() {
@@ -62,7 +62,6 @@ function App() {
     <Route path="/vendor/orders" element={<VendorOrders />} />
     <Route path="/vendor/profile" element={<VendorProfile />} />
     <Route path="/vendor/settings" element={<VendorSettings />} />
-    <Route path="/vendor/analytics" element={<VendorAnalytics />} />
 
   </Route>
 
