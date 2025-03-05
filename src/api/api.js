@@ -8,15 +8,14 @@ const api = axios.create({
   timeout: 10000 // 10-second timeout
 });
 
-api.interceptors.request.use(config => {
-  console.log('Making request to:', config.url);
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
-}, error => {
-  return Promise.reject(error);
 });
 
-// In your api.js file
-// api.js
 api.interceptors.response.use(
   response => response,
   error => {

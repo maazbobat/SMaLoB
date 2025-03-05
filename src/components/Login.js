@@ -38,33 +38,49 @@ const Login = () => {
   };
 
   const handleLoginSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-  
-    try {
-      const response = await api.post('/auth/login', {
-        email: formData.email,
-        password: formData.password
-      });
+  e.preventDefault();
+  setError('');
+  setLoading(true);
 
-      const { token, role } = response.data;
-      login(token, role);
+  try {
+    const response = await api.post('/auth/login', {
+      email: formData.email,
+      password: formData.password
+    });
 
-      const dashboardPaths = {
-        Admin: '/admin-dashboard',
-        Vendor: '/vendor-dashboard',
-        Customer: '/customer-dashboard'
-      };
+    console.log("✅ Login Response:", response.data);
 
-      navigate(dashboardPaths[role] || '/');
-  
-    } catch (error) {
-      setError(error.response?.data?.message || 'Login failed');
-    } finally {
-      setLoading(false);
+    const { token, role, name } = response.data;
+
+    if (!token) {
+      console.error("❌ No token received! API might be failing.");
+      setError("Login failed. No token received.");
+      return;
     }
-  };
+
+    // ✅ Store token and role in LocalStorage
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", role);
+    localStorage.setItem("name", name);
+
+    login(token, role, name); // Ensure `login` function updates the context
+
+    // ✅ Correcting Route Redirection Paths
+    const dashboardPaths = {
+      Admin: "/admin/dashboard",
+      Vendor: "/vendor/dashboard",
+      Customer: "/customer/dashboard",
+    };
+
+    navigate(dashboardPaths[role] || "/");
+
+  } catch (error) {
+    console.error("❌ Login Error:", error.response?.data || error.message);
+    setError(error.response?.data?.message || "Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleResendVerification = async () => {
     try {
