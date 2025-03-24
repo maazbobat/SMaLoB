@@ -12,6 +12,7 @@ const CustomerDashboard = () => {
   const [customerData, setCustomerData] = useState(null);
   const [products, setProducts] = useState([]); // ✅ Ensure products is always an array
   const [vendors, setVendors] = useState([]); // ✅ Ensure vendors is always an array
+  const [cart, setCart] = useState([]); // New state to store items added to cart
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,22 +51,6 @@ const CustomerDashboard = () => {
     fetchDashboardData();
   }, [user]);
 
-
-  const handlePlaceOrder = async (productId) => {
-    try {
-      console.log(`🛒 Placing order for product: ${productId}`);
-      await api.post(
-        "/orders",
-        { productId },
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
-      alert("✅ Order placed successfully!");
-    } catch (error) {
-      console.error("❌ Error placing order:", error.response?.data || error.message);
-      alert("❌ Failed to place order. Try again!");
-    }
-  };
-
   const handleAddToWishlist = async (productId) => {
     try {
       await api.post(
@@ -76,6 +61,20 @@ const CustomerDashboard = () => {
       alert("✅ Added to wishlist!");
     } catch (error) {
       console.error("❌ Error adding to wishlist:", error);
+    }
+  };
+
+  const handleAddToCart = async (productId) => { // New function to handle adding to cart
+    try {
+      await api.post(
+        "/cart/add",
+        { productId },
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      alert("✅ Added to cart!");
+    } catch (error) {
+      console.error("❌ Error adding to cart:", error.response?.data || error.message);
+      alert("❌ Failed to add to cart. Try again!");
     }
   };
 
@@ -120,9 +119,9 @@ const CustomerDashboard = () => {
                     <h4>{product.name}</h4>
                     <p>${product.price}</p>
                     <button className="wishlist-btn" onClick={() => handleAddToWishlist(product._id)}>
-  <FiHeart /> Add to Wishlist
-</button>
-                    <button onClick={() => handlePlaceOrder(product._id)}>🛒 Buy Now</button>
+                      <FiHeart /> Add to Wishlist
+                    </button>
+                    <button onClick={() => handleAddToCart(product._id)}>🛒 Add to Cart</button> {/* Updated button label */}
                   </div>
                 </div>
               ))

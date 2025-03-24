@@ -59,7 +59,9 @@ const CustomerCart = () => {
 
   const handleCheckout = async () => {
     try {
-      await api.post("/checkout", {}, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+      await api.post("/checkout", {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       toast.success("Order placed successfully!");
       setCart({ items: [], total: 0 });
     } catch (error) {
@@ -67,6 +69,18 @@ const CustomerCart = () => {
       toast.error("Checkout failed. Try again.");
     }
   };
+
+  const calculateTotals = () => {
+    const subtotal = cart.items.reduce(
+      (total, item) => total + item.product.price * item.quantity,
+      0
+    );
+    const hst = subtotal * 0.13;
+    const total = subtotal + hst;
+    return { subtotal, hst, total };
+  };
+
+  const { subtotal, hst, total } = calculateTotals();
 
   if (loading) return <p className="loading-text">Loading your cart...</p>;
 
@@ -79,35 +93,38 @@ const CustomerCart = () => {
         {cart.items.length > 0 ? (
           <div className="cart-grid">
             {cart.items.map(({ product, quantity }) => (
-              <div key={product._id} className="cart-card">
-                <img src={product.images?.[0] || "/default-product.jpg"} alt={product.name} />
-                <div className="cart-details">
-                  <h4>{product.name}</h4>
-                  <p>${product.price}</p>
-                  <div className="quantity-controls">
-                    <button onClick={() => updateQuantity(product._id, quantity - 1)} disabled={quantity <= 1}>
-                      <FiMinus />
-                    </button>
-                    <span>{quantity}</span>
-                    <button onClick={() => updateQuantity(product._id, quantity + 1)}>
-                      <FiPlus />
-                    </button>
+              product && (
+                <div key={product._id} className="cart-card">
+                  <img src={product.images?.[0] || "/default-product.jpg"} alt={product.name} />
+                  <div className="cart-details">
+                    <h4>{product.name}</h4>
+                    <p>${product.price}</p>
+                    <div className="quantity-controls">
+                      <button onClick={() => updateQuantity(product._id, quantity - 1)} disabled={quantity <= 1}>
+                        <FiMinus />
+                      </button>
+                      <span>{quantity}</span>
+                      <button onClick={() => updateQuantity(product._id, quantity + 1)}>
+                        <FiPlus />
+                      </button>
+                    </div>
                   </div>
+                  <button className="remove-btn" onClick={() => handleRemoveFromCart(product._id)}>
+                    <FiTrash /> Remove
+                  </button>
                 </div>
-                <button className="remove-btn" onClick={() => handleRemoveFromCart(product._id)}>
-                  <FiTrash /> Remove
-                </button>
-              </div>
+              )
             ))}
           </div>
         ) : (
           <p className="no-data">Your cart is empty. Start shopping now!</p>
         )}
 
-        {/* Cart Summary */}
         {cart.items.length > 0 && (
           <div className="cart-summary">
-            <h3>Total: <span>${cart.items.reduce((total, item) => total + item.product.price * item.quantity, 0).toFixed(2)}</span></h3>
+            <h3>Subtotal: <span>${subtotal.toFixed(2)}</span></h3>
+            <h4>HST (13%): <span>${hst.toFixed(2)}</span></h4>
+            <h2>Total: <span>${total.toFixed(2)}</span></h2>
             <button className="checkout-btn" onClick={handleCheckout}>
               <FiCreditCard /> Checkout
             </button>
