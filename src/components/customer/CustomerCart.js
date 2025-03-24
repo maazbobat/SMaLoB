@@ -34,9 +34,13 @@ const CustomerCart = () => {
       const response = await api.put(
         `/cart/update/${productId}`,
         { quantity },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
-      setCart(response.data);
+      setCart(response.data); // or refetchCart()
       toast.success("Cart updated!");
     } catch (error) {
       console.error("❌ Error updating cart:", error);
@@ -47,9 +51,14 @@ const CustomerCart = () => {
   const handleRemoveFromCart = async (productId) => {
     try {
       await api.delete(`/cart/remove/${productId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
-      setCart({ ...cart, items: cart.items.filter((item) => item.product._id !== productId) });
+      setCart((prevCart) => ({
+        ...prevCart,
+        items: prevCart.items.filter((item) => item.product._id !== productId),
+      }));
       toast.success("Removed from cart!");
     } catch (error) {
       console.error("❌ Error removing from cart:", error);
