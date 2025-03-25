@@ -86,7 +86,7 @@ router.put("/change-password", authenticate, async (req, res) => {
 // ✅ GET Customer Orders (Populate order details)
 router.get("/orders", authenticate, async (req, res) => {
   try {
-    const orders = await Order.find({ customer: req.user.userId }).populate("products.product", "name price");
+    const orders = await Order.find({ customer: req.user.userId }).populate("items.product", "name price");
     res.json({ success: true, orders });
   } catch (error) {
     console.error("🔥 Error fetching orders:", error);

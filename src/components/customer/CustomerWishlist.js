@@ -34,8 +34,8 @@ const CustomerWishlist = () => {
       await api.delete(`/wishlist/remove/${productId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      setWishlist(wishlist.filter((item) => item.product._id !== productId));
-      toast.success("Removed from wishlist!");
+      setWishlist((prev) => prev.filter((item) => item.product?._id !== productId));
+      toast.success("✅ Removed from wishlist!");
     } catch (error) {
       console.error("❌ Error removing from wishlist:", error);
       toast.error("Failed to remove item.");
@@ -49,15 +49,25 @@ const CustomerWishlist = () => {
         { productId, quantity: 1 },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-      handleRemoveFromWishlist(productId);
-      toast.success("Moved to cart!");
+      await handleRemoveFromWishlist(productId);
+      toast.success("✅ Moved to cart!");
     } catch (error) {
       console.error("❌ Error moving to cart:", error);
       toast.error("Failed to move item to cart.");
     }
   };
 
-  if (loading) return <p className="loading-text">Loading your wishlist...</p>;
+  if (loading) {
+    return (
+      <div className="wishlist-page">
+        <Navbar />
+        <div className="wishlist-container">
+          <p className="loading-text">Loading your wishlist...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="wishlist-page">
@@ -67,23 +77,33 @@ const CustomerWishlist = () => {
 
         {wishlist.length > 0 ? (
           <div className="grid-container">
-            {wishlist.map(({ product }) => (
-  product ? (
-    <div key={product._id} className="wishlist-card">
-      <img src={product.images?.[0] || "/default-product.jpg"} alt={product.name || "No Name"} />
-      <h4>{product.name || "Unknown Product"}</h4>
-      <p>${product.price || "N/A"}</p>
-      <button className="remove-btn" onClick={() => handleRemoveFromWishlist(product._id)}>
-        <FiTrash /> Remove
-      </button>
-    </div>
-  ) : (
-    <p key={Math.random()} className="error-text">⚠️ Product not found</p>
-  )
-))}
+            {wishlist.map(({ product }) => {
+              if (!product) return (
+                <div key={Math.random()} className="wishlist-card error">
+                  <p>⚠️ Product not found</p>
+                </div>
+              );
+
+              return (
+                <div key={product._id} className="wishlist-card">
+                  <img src={product.images?.[0] || "/default-product.jpg"} alt={product.name || "No Name"} />
+                  <h4>{product.name || "Unnamed Product"}</h4>
+                  <p>${product.price?.toFixed(2) || "N/A"}</p>
+
+                  <div className="wishlist-actions">
+                    <button className="move-btn" onClick={() => handleMoveToCart(product._id)}>
+                      <FiShoppingCart /> Move to Cart
+                    </button>
+                    <button className="remove-btn" onClick={() => handleRemoveFromWishlist(product._id)}>
+                      <FiTrash /> Remove
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <p className="no-data">Your wishlist is empty. Start adding your favorite items!</p>
+          <p className="no-data">🫤 Your wishlist is empty. Start adding your favorite items!</p>
         )}
       </div>
       <Footer />

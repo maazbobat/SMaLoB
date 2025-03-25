@@ -6,6 +6,7 @@ import api from "../../api/api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../../styles/cart.css";
+import { useNavigate } from "react-router-dom";
 
 const CustomerCart = () => {
   const [cart, setCart] = useState({ items: [], total: 0 });
@@ -66,18 +67,7 @@ const CustomerCart = () => {
     }
   };
 
-  const handleCheckout = async () => {
-    try {
-      await api.post("/checkout", {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      toast.success("Order placed successfully!");
-      setCart({ items: [], total: 0 });
-    } catch (error) {
-      console.error("❌ Error during checkout:", error);
-      toast.error("Checkout failed. Try again.");
-    }
-  };
+  const navigate = useNavigate();
 
   const calculateTotals = () => {
     const subtotal = cart.items.reduce(
@@ -134,9 +124,7 @@ const CustomerCart = () => {
             <h3>Subtotal: <span>${subtotal.toFixed(2)}</span></h3>
             <h4>HST (13%): <span>${hst.toFixed(2)}</span></h4>
             <h2>Total: <span>${total.toFixed(2)}</span></h2>
-            <button className="checkout-btn" onClick={handleCheckout}>
-              <FiCreditCard /> Checkout
-            </button>
+            <button onClick={() => navigate("/checkout")}>Go to Checkout</button>
           </div>
         )}
       </div>

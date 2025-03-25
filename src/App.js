@@ -27,6 +27,8 @@ import VendorProducts from './components/vendor/VendorProducts';
 import VendorOrders from './components/vendor/VendorOrders';
 import VendorProfile from './components/vendor/VendorProfile';
 import VendorSettings from './components/vendor/VendorSettings';
+import ProductDetails from './components/ProductDetails';
+import CustomerCheckout from './components/customer/CustomerCheckout';
 
 
 
@@ -73,9 +75,11 @@ function App() {
     <Route path="/customer/settings" element={<CustomerSettings />} />
     <Route path="/customer/wishlist" element={<CustomerWishlist />} />
     <Route path="/customer/cart" element={<CustomerCart />} />
+    <Route path="/checkout" element={<CustomerCheckout />} />
   </Route>
 
   {/* ✅ Catch-All Route */}
+  <Route path="/product/:id" element={<ProductDetails />} />
   <Route path="/404" element={<NotFound />} />
   <Route path="*" element={<Navigate to="/404" replace />} />
 </Routes>

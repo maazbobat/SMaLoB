@@ -14,20 +14,18 @@ const CustomerOrders = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
-        try {
-          const response = await api.get("/customers/orders", {
-            headers: { Authorization: `Bearer ${user.token}` },
-          });
-      
-          console.log("🛒 Orders API Response:", response.data);
-      
-          // ✅ Extract orders array properly
-          setOrders(Array.isArray(response.data.orders) ? response.data.orders : []);
-        } catch (error) {
-          console.error("❌ Error fetching orders:", error.response?.data || error.message);
-          setOrders([]); // ✅ Prevents `.map()` crash
-        }
-      };
+      try {
+        const response = await api.get("/customers/orders", {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        setOrders(Array.isArray(response.data.orders) ? response.data.orders : []);
+      } catch (error) {
+        console.error("❌ Error fetching orders:", error.response?.data || error.message);
+        setOrders([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchOrders();
   }, [user]);
@@ -36,10 +34,14 @@ const CustomerOrders = () => {
     switch (status) {
       case "Pending":
         return <Badge bg="warning">Pending</Badge>;
+      case "Processing":
+        return <Badge bg="info">Processing</Badge>;
       case "Shipped":
         return <Badge bg="primary">Shipped</Badge>;
       case "Delivered":
         return <Badge bg="success">Delivered</Badge>;
+      case "Cancelled":
+        return <Badge bg="danger">Cancelled</Badge>;
       default:
         return <Badge bg="secondary">Unknown</Badge>;
     }
@@ -61,31 +63,47 @@ const CustomerOrders = () => {
         ) : orders.length === 0 ? (
           <p className="text-center">You have no orders yet.</p>
         ) : (
-          <Table striped bordered hover responsive>
-            <thead className="bg-light">
-              <tr>
-                <th>Order ID</th>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Ordered At</th>
-              </tr>
-            </thead>
-            <tbody>
-            {orders.length > 0 ? (
-  orders.map((order) => (
-    <div key={order._id} className="order-card">
-      <p>🆔 Order ID: {order._id}</p>
-      <p>📅 Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-      <p>📦 Status: {order.status}</p>
-    </div>
-  ))
-) : (
-  <p className="no-data">No orders found.</p>
-)}
-            </tbody>
-          </Table>
+          orders.map((order) => (
+            <div key={order._id} className="mb-4 p-3 border rounded shadow-sm">
+              <h5>Order ID: {order._id}</h5>
+              <p><strong>Date:</strong> {new Date(order.createdAt).toLocaleString()}</p>
+              <p><strong>Status:</strong> {getStatusBadge(order.status)}</p>
+              
+              <p><strong>Total:</strong> ${order.totalPrice.toFixed(2)}</p>
+
+              {/* Customer Info (Optional) */}
+              {order.customerInfo && (
+                <div className="mb-2">
+                  <p><strong>Name:</strong> {order.customerInfo.fullName}</p>
+                  <p><strong>Email:</strong> {order.customerInfo.email}</p>
+                  <p><strong>Phone:</strong> {order.customerInfo.phone}</p>
+                  <p><strong>Address:</strong> {order.customerInfo.address}, {order.customerInfo.postalCode}</p>
+                </div>
+              )}
+
+              {/* Order Items Table */}
+              <Table striped bordered hover size="sm">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {order.items.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.product?.name || "Deleted Product"}</td>
+                      <td>{item.quantity}</td>
+                      <td>${item.price.toFixed(2)}</td>
+                      <td>${(item.price * item.quantity).toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          ))
         )}
       </Container>
       <Footer />

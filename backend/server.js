@@ -13,6 +13,7 @@ const vendorRoutes = require("./routes/vendorRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const orderRoutes = require("./routes/orderRoutes"); 
 const wishlistRoutes = require("./routes/wishlistRoutes");
+const checkoutRoutes = require("./routes/checkoutRoutes");
 
 const { authenticate } = require('./middleware/authMiddleware');
 
@@ -64,6 +65,7 @@ app.use('/api/products', require("./routes/productRoutes"));
 app.use("/api/cart", require("./routes/cartRoutes"));
 app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/checkout', checkoutRoutes);
 
 app._router.stack.forEach((r) => {
   if (r.route && r.route.path) {
