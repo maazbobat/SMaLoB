@@ -92,6 +92,7 @@ const CustomerCheckout = () => {
       console.error("❌ Square init error:", error);
     }
   };
+  
 
   const handlePayment = async () => {
     try {

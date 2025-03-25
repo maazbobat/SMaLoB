@@ -6,13 +6,22 @@ const { authenticate } = require("../middleware/authMiddleware");
 const crypto = require("crypto");
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
+const twilio = require("twilio");
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilioClient = twilio(accountSid, authToken);
 
 // Configure Square environment
 const defaultClient = squareConnect.ApiClient.instance;
 defaultClient.basePath = "https://connect.squareupsandbox.com";
 
 const oauth2 = defaultClient.authentications["oauth2"];
-oauth2.accessToken = process.env.SQUARE_ACCESS_TOKEN; // 🔐 Add to .env
+oauth2.accessToken = process.env.SQUARE_ACCESS_TOKEN;
+
+const formatPhone = (phone) => {
+  const cleaned = phone.replace(/\D/g, "");
+  return cleaned.startsWith("1") ? `+${cleaned}` : `+1${cleaned}`;
+};
 
 const paymentsApi = new squareConnect.PaymentsApi();
 
@@ -55,6 +64,13 @@ router.post("/", authenticate, async (req, res) => {
     });
 
     await newOrder.save();
+
+    // ✅ Send confirmation SMS
+await twilioClient.messages.create({
+  body: `✅ Hi ${customerInfo.fullName}, your order has been placed successfully on SMaLoB. Total: $${amount} CAD. Thank you for shopping with us!`,
+  from: process.env.TWILIO_PHONE_NUMBER,
+  to: formatPhone(customerInfo.phone),
+});
 
     // ✅ Clear cart
     cart.items = [];
