@@ -1,6 +1,4 @@
-Here’s an enhanced and modernized version of your README.md file for SMaLoB Marketplace, with better structure, visual clarity, and more detailed sections:
 
-⸻
 
 🛍️ SMaLoB Marketplace
 
