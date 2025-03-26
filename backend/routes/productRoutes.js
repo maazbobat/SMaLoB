@@ -5,7 +5,15 @@ const productController = require("../controllers/productController");
 const Product = require("../models/Product");
 
 // ✅ Fetch all products
-router.get("/", productController.getAllProducts);
+// routes/productRoutes.js
+router.get("/", async (req, res) => {
+  try {
+    const products = await Product.find().populate("vendor", "name email");
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 // ✅ Add a new product (only vendors can add products)
 router.post("/add", authenticate, productController.addProduct);

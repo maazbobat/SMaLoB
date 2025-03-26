@@ -9,51 +9,65 @@ const Order = require("../models/Order");
 // ✅ GET Admin Dashboard Stats (Users, Vendors, Orders, Sales Data)
 router.get("/stats", authenticate, authorize("Admin"), async (req, res) => {
     try {
-        const usersCount = await User.countDocuments();
-        const vendorsCount = await Vendor.countDocuments({ role: "Vendor" }); // Ensure role is vendor
-        const ordersCount = await Order.countDocuments();
-
-        // ✅ Calculate total revenue from orders
-        const totalRevenue = await Order.aggregate([
-            { $group: { _id: null, total: { $sum: "$totalAmount" } } }
-        ]);
-
-        // ✅ Generate dynamic sales data (Last 6 months)
-        const salesData = await Order.aggregate([
-            {
-                $group: {
-                    _id: { $month: "$createdAt" },
-                    totalSales: { $sum: "$totalAmount" },
-                }
-            },
-            { $sort: { _id: 1 } }
-        ]);
-
-        const formattedSalesData = {
-            labels: salesData.map((d) => `Month ${d._id}`),
-            datasets: [
-                {
-                    label: "Sales Revenue",
-                    data: salesData.map((d) => d.totalSales),
-                    borderColor: "blue",
-                    backgroundColor: "rgba(0, 0, 255, 0.2)",
-                    fill: true,
-                },
-            ],
-        };
-
-        res.json({
-            users: usersCount,
-            vendors: vendorsCount,
-            orders: ordersCount,
-            totalRevenue: totalRevenue[0]?.total || 0,
-            salesData: formattedSalesData,
-        });
+      const usersCount = await User.countDocuments();
+      const vendorsCount = await Vendor.countDocuments({ role: "Vendor" });
+      const orders = await Order.find();
+      const ordersCount = orders.length;
+  
+      const totalRevenue = orders.reduce((acc, order) => acc + order.totalPrice, 0);
+      const averageOrderValue = ordersCount > 0 ? totalRevenue / ordersCount : 0;
+  
+      // ✅ Group sales data by month
+      const salesDataRaw = await Order.aggregate([
+        {
+          $group: {
+            _id: { $month: "$createdAt" },
+            totalSales: { $sum: "$totalPrice" },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]);
+  
+      const formattedSalesData = {
+        labels: salesDataRaw.map((d) => `Month ${d._id}`),
+        datasets: [
+          {
+            label: "Sales Revenue",
+            data: salesDataRaw.map((d) => d.totalSales),
+            borderColor: "blue",
+            backgroundColor: "rgba(0, 0, 255, 0.2)",
+            fill: true,
+          },
+        ],
+      };
+  
+      // ✅ Sales growth rate (Month over Month)
+      const thisMonth = salesDataRaw[salesDataRaw.length - 1]?.totalSales || 0;
+      const lastMonth = salesDataRaw[salesDataRaw.length - 2]?.totalSales || 0;
+      const salesGrowthRate =
+        lastMonth > 0 ? ((thisMonth - lastMonth) / lastMonth) * 100 : 0;
+  
+      // ✅ Status breakdown
+      const statusBreakdown = orders.reduce((acc, order) => {
+        acc[order.status] = (acc[order.status] || 0) + 1;
+        return acc;
+      }, {});
+  
+      res.json({
+        users: usersCount,
+        vendors: vendorsCount,
+        orders: ordersCount,
+        totalRevenue,
+        averageOrderValue,
+        salesGrowthRate,
+        statusBreakdown,
+        salesData: formattedSalesData,
+      });
     } catch (error) {
-        console.error("🔥 Error fetching admin stats:", error);
-        res.status(500).json({ message: "Server error" });
+      console.error("🔥 Error fetching admin stats:", error);
+      res.status(500).json({ message: "Server error" });
     }
-});
+  });
 
 router.get("/users", authenticate, authorize("Admin"), async (req, res) => {
     try {
@@ -76,22 +90,71 @@ router.get("/vendors", authenticate, authorize("Admin"), async (req, res) => {
 });
 
 
+// ✅ In routes/adminRoutes.js
 router.get("/analytics", authenticate, authorize("Admin"), async (req, res) => {
     try {
-      const usersCount = await User.countDocuments();
-      const vendorsCount = await Vendor.countDocuments();
-      const ordersCount = await Order.countDocuments();
+      const totalSalesAgg = await Order.aggregate([
+        { $group: { _id: null, total: { $sum: "$totalPrice" } } },
+      ]);
+      const totalSales = totalSalesAgg[0]?.total || 0;
   
-      const salesData = {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+      const newUsers = await User.countDocuments(); // optionally filter by month
+      const activeVendors = await Vendor.countDocuments();
+  
+      const salesData = await Order.aggregate([
+        {
+          $group: {
+            _id: { $month: "$createdAt" },
+            totalSales: { $sum: "$totalPrice" },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]);
+  
+      const userGrowth = await User.aggregate([
+        {
+          $group: {
+            _id: { $month: "$createdAt" },
+            users: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]);
+  
+      const salesChart = {
+        labels: salesData.map((d) => `Month ${d._id}`),
         datasets: [
-          { label: "Sales", data: [5000, 7000, 4000, 8000, 10000], borderColor: "blue", fill: false },
+          {
+            label: "Monthly Sales",
+            data: salesData.map((d) => d.totalSales),
+            borderColor: "blue",
+            backgroundColor: "rgba(0, 0, 255, 0.2)",
+            fill: true,
+          },
         ],
       };
   
-      res.json({ users: usersCount, vendors: vendorsCount, orders: ordersCount, salesData });
+      const usersChart = {
+        labels: userGrowth.map((d) => `Month ${d._id}`),
+        datasets: [
+          {
+            label: "New Users",
+            data: userGrowth.map((d) => d.users),
+            backgroundColor: "rgba(255, 99, 132, 0.5)",
+            borderColor: "red",
+          },
+        ],
+      };
+  
+      res.json({
+        totalSales,
+        newUsers,
+        activeVendors,
+        salesChart,
+        usersChart,
+      });
     } catch (error) {
-      console.error("🔥 Error fetching analytics:", error);
+      console.error("🔥 Error in /admin/analytics:", error);
       res.status(500).json({ message: "Server error" });
     }
   });

@@ -9,27 +9,32 @@ const bcrypt = require("bcryptjs");
 router.get("/profile", authenticate, async (req, res) => {
   console.log("🔍 Fetching Customer Profile for User ID:", req.user.userId);
   try {
-      const customer = await User.findById(req.user.userId).select("-password");
+    const customer = await User.findById(req.user.userId)
+      .select("-password")
+      .populate("wishlist", "name price images"); // optional: show product info in wishlist
 
-      if (!customer) {
-          console.error("❌ Customer not found in DB");
-          return res.status(404).json({ message: "Customer not found" });
-      }
+    if (!customer) {
+      console.error("❌ Customer not found in DB");
+      return res.status(404).json({ message: "Customer not found" });
+    }
 
-      res.json({
-          success: true,
-          customer: {
-              id: customer._id,
-              name: customer.username,
-              email: customer.email,
-              isVerified: customer.isVerified, 
-              orders: [],
-              wishlist: [],
-          },
-      });
+    // 🧾 Fetch orders for the customer
+    const orders = await Order.find({ customer: req.user.userId });
+
+    res.json({
+      success: true,
+      customer: {
+        id: customer._id,
+        name: customer.username,
+        email: customer.email,
+        isVerified: customer.isVerified,
+        orders, // array of order objects
+        wishlist: customer.wishlist || [],
+      },
+    });
   } catch (error) {
-      console.error("🔥 Error fetching customer profile:", error);
-      res.status(500).json({ message: "Server error" });
+    console.error("🔥 Error fetching customer profile:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

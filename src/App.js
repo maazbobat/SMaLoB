@@ -12,7 +12,7 @@ import VerifyEmail from './components/VerifyEmail';
 import Unauthorized from './components/Unauthorized';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
-import NotFound from './components/NotFound'; // ✅ New NotFound page
+import NotFound from './components/NotFound';
 import AdminAnalytics from './components/admin/AdminAnalytics';
 import AdminUsers from './components/admin/AdminUsers';
 import AdminVendors from './components/admin/AdminVendors';
@@ -29,6 +29,12 @@ import VendorProfile from './components/vendor/VendorProfile';
 import VendorSettings from './components/vendor/VendorSettings';
 import ProductDetails from './components/ProductDetails';
 import CustomerCheckout from './components/customer/CustomerCheckout';
+import AllProductsPage from './components/AllProductsPage';
+import AllVendorsPage from './components/AllVendorsPage';
+import About from './components/About';
+import Contact from './components/Contact';
+import Services from './components/Services';
+import Blog from './components/Blog';
 
 
 
@@ -46,6 +52,12 @@ function App() {
   <Route path="/verify-email/:token" element={<VerifyEmail />} />
   <Route path="/forgot-password" element={<ForgotPassword />} />
   <Route path="/reset-password/:token" element={<ResetPassword />} />
+  <Route path="/products" element={<AllProductsPage />} />
+<Route path="/vendors" element={<AllVendorsPage />} />
+<Route path="/about" element={<About />} />
+<Route path="/contact" element={<Contact />} />
+<Route path="/services" element={<Services />} />
+<Route path="/blog" element={<Blog />} />
 
   {/* ✅ Admin Routes */}
   <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>

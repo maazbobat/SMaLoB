@@ -22,18 +22,25 @@ const CustomerDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         if (!user || !user.token) return;
-
+    
         const [customerRes, productsRes, vendorsRes] = await Promise.all([
           api.get("/customers/profile", { headers: { Authorization: `Bearer ${user.token}` } }),
-          api.get("/products"),
-          api.get("/vendors"),
+          api.get("/products").catch(err => {
+            console.error("❌ Products API Error:", err);
+            return { data: [] };
+          }),
+          api.get("/vendors").catch(err => {
+            console.error("❌ Vendors API Error:", err);
+            return { data: [] };
+          }),
         ]);
-
+    
         setCustomerData(customerRes.data.customer || {});
         const productsArray = Array.isArray(productsRes.data) ? productsRes.data : [];
         setProducts(productsArray);
-        setFilteredProducts(productsArray); // 👈 Set initial filtered products
+        setFilteredProducts(productsArray);
         setVendors(Array.isArray(vendorsRes.data) ? vendorsRes.data : []);
+    
       } catch (error) {
         console.error("❌ Error fetching dashboard data:", error);
       } finally {

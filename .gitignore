@@ -23,4 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 package.json
 package-lock.json
-node_modules/
+node_modules/backend/.env
+backend/.env

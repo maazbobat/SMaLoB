@@ -7,6 +7,7 @@ const vendorSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, select: false },
     phone: { type: String },
+    products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     profileImage: { type: String, default: "/default-vendor.jpg" },
     isVerified: { type: Boolean, default: false },
     role: { type: String, default: "Vendor" },

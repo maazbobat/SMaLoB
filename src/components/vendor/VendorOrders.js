@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FiShoppingCart, FiClock, FiCheckCircle, FiXCircle } from "react-icons/fi";
+import { FiShoppingCart, FiCheckCircle, FiXCircle } from "react-icons/fi";
 import Navbar from "./VendorNavbar";
 import api from "../../api/api";
 import "../../styles/styles.css";
@@ -31,13 +31,13 @@ const VendorOrders = () => {
       await api.put(
         `/vendors/orders/${orderId}`,
         { status: newStatus },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order._id === orderId ? { ...order, status: newStatus } : order
-        )
-      );
+      fetchOrders(); // Refresh after status update
     } catch (err) {
       alert("Failed to update order status.");
     }
@@ -51,19 +51,33 @@ const VendorOrders = () => {
     <div className="orders-page">
       <Navbar />
       <div className="orders-container">
-        <h1>Vendor Orders</h1>
+        <h1>My Orders</h1>
         <div className="grid-container">
           {orders.map((order) => (
             <div key={order._id} className="order-card">
               <div className="order-info">
                 <FiShoppingCart className="order-icon" />
                 <h3>Order #{order._id.slice(-6)}</h3>
-                <p>Customer: {order.customer?.name || "Unknown"}</p>
-                <p>Total: ${order.totalPrice.toFixed(2)}</p>
+                <p>Customer: {order.customer?.name || "N/A"}</p>
+                <p>Placed on: {new Date(order.createdAt).toLocaleDateString()}</p>
+
+                <h5 className="mt-3">Items:</h5>
+                <ul className="order-items-list">
+                  {order.items.map((item, index) => (
+                    <li key={index}>
+                      🛍️ <strong>{item.product?.name}</strong> — {item.quantity} x ${item.price.toFixed(2)}
+                    </li>
+                  ))}
+                </ul>
+
+                <p className="order-total">
+                  <strong>Total:</strong> ${order.totalPrice.toFixed(2)}
+                </p>
                 <p className={`status-badge ${order.status.toLowerCase()}`}>
                   {order.status}
                 </p>
               </div>
+
               <div className="order-actions">
                 {order.status !== "Shipped" && (
                   <button

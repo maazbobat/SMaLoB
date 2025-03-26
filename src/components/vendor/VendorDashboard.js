@@ -10,6 +10,11 @@ const VendorDashboard = () => {
   const { user } = useAuth();
   const [vendorData, setVendorData] = useState(null);
   const [products, setProducts] = useState([]);
+  const [salesData, setSalesData] = useState({
+    totalRevenue: 0,
+    totalOrders: 0,
+    revenueGrowth: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -27,11 +32,23 @@ const VendorDashboard = () => {
   const fetchVendorData = async () => {
     try {
       if (!user?.token) throw new Error("No authentication token found.");
-      const response = await api.get("/vendors/profile", {
-        headers: { Authorization: `Bearer ${user.token}` },
+  
+      const [profileRes, salesRes] = await Promise.all([
+        api.get("/vendors/profile", {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }),
+        api.get("/vendors/sales", {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }),
+      ]);
+  
+      setVendorData(profileRes.data.vendor);
+      setProducts(profileRes.data.vendor.products || []);
+      setSalesData({
+        totalRevenue: salesRes.data.totalRevenue || 0,
+        totalOrders: salesRes.data.totalOrders || 0,
+        revenueGrowth: Math.floor(Math.random() * 30) + 1, // For now: random mock percentage
       });
-      setVendorData(response.data.vendor);
-      setProducts(response.data.vendor.products || []);
     } catch (error) {
       toast.error("❌ Error fetching vendor data.");
     } finally {
@@ -73,6 +90,8 @@ const VendorDashboard = () => {
     }
   };
 
+  
+
   if (loading)
     return (
       <div className="loading-container">
@@ -82,17 +101,17 @@ const VendorDashboard = () => {
     );
 
   return (
-    <div className="vendor-dashboard">
+    <div>
       <Navbar />
       <div className="dashboard-container">
         <h1 className="dashboard-title">Welcome, {vendorData?.name} 👋</h1>
 
         {/* Stats Section */}
         <div className="stats-grid">
-          <StatCard icon={<FiPackage />} title="Total Products" value={products.length} />
-          <StatCard icon={<FiDollarSign />} title="Total Sales" value="$5000" />
-          <StatCard icon={<FiTrendingUp />} title="Revenue Growth" value="10%" />
-        </div>
+  <StatCard icon={<FiPackage />} title="Total Products" value={products.length} />
+  <StatCard icon={<FiDollarSign />} title="Total Revenue" value={`$${salesData.totalRevenue.toFixed(2)}`} />
+  <StatCard icon={<FiTrendingUp />} title="Revenue Growth" value={`${salesData.revenueGrowth}%`} />
+</div>
 
         {/* Product Management */}
         <div className="section-card">

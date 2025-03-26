@@ -66,6 +66,7 @@ app.use("/api/cart", require("./routes/cartRoutes"));
 app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/checkout', checkoutRoutes);
+app.use("/api/vendors", require("./routes/vendorRoutes"));
 
 app._router.stack.forEach((r) => {
   if (r.route && r.route.path) {
