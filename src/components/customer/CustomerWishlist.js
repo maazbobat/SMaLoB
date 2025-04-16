@@ -6,6 +6,7 @@ import api from "../../api/api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../../styles/wishlist.css";
+import { Link } from "react-router-dom";
 
 const CustomerWishlist = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -77,30 +78,26 @@ const CustomerWishlist = () => {
 
         {wishlist.length > 0 ? (
           <div className="grid-container">
-            {wishlist.map(({ product }) => {
-              if (!product) return (
-                <div key={Math.random()} className="wishlist-card error">
-                  <p>⚠️ Product not found</p>
-                </div>
-              );
+            {wishlist
+  .filter(({ product }) => product) // <== Skip nulls
+  .map(({ product }) => (
+    <div key={product._id} className="wishlist-card">
+      <Link to={`/product/${product._id}`}>
+                        <img src={`http://localhost:3001${product.images?.[0]}`} alt={product.name} onError={(e) => e.target.src = "/default-product.jpg"} />
+                        </Link>
+      <h4>{product.name}</h4>
+      <p>${product.price?.toFixed(2)}</p>
 
-              return (
-                <div key={product._id} className="wishlist-card">
-                  <img src={product.images?.[0] || "/default-product.jpg"} alt={product.name || "No Name"} />
-                  <h4>{product.name || "Unnamed Product"}</h4>
-                  <p>${product.price?.toFixed(2) || "N/A"}</p>
-
-                  <div className="wishlist-actions">
-                    <button className="move-btn" onClick={() => handleMoveToCart(product._id)}>
-                      <FiShoppingCart /> Move to Cart
-                    </button>
-                    <button className="remove-btn" onClick={() => handleRemoveFromWishlist(product._id)}>
-                      <FiTrash /> Remove
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+      <div className="wishlist-actions">
+        <button className="move-btn" onClick={() => handleMoveToCart(product._id)}>
+          <FiShoppingCart /> Move to Cart
+        </button>
+        <button className="remove-btn" onClick={() => handleRemoveFromWishlist(product._id)}>
+          <FiTrash /> Remove
+        </button>
+      </div>
+    </div>
+))}
           </div>
         ) : (
           <p className="no-data">🫤 Your wishlist is empty. Start adding your favorite items!</p>

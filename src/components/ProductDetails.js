@@ -1,4 +1,3 @@
-// 📁 /src/components/customer/ProductDetails.js
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FiHeart, FiShoppingCart } from "react-icons/fi";
@@ -6,9 +5,10 @@ import Navbar from "../components/customer/CustomerNavbar";
 import Footer from "../components/Footer";
 import api from "../api/api";
 import { toast } from "react-toastify";
+import "../styles/productDetails.css";
 
 const ProductDetails = () => {
-  const { id } = useParams(); // Get product ID from URL
+  const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -56,22 +56,34 @@ const ProductDetails = () => {
   return (
     <div className="product-details-page">
       <Navbar />
-      <div className="product-details-container">
-        <img src={product.images?.[0] || "/default-product.jpg"} alt={product.name} />
-        <div className="product-info">
-          <h1>{product.name}</h1>
-          <p className="product-price">${product.price}</p>
-          <p className="product-description">{product.description || "No description available."}</p>
-          <p>Category: {product.category}</p>
-          <p>Stock: {product.stock}</p>
+      <div className="product-details-container container">
+        <div className="product-details-card">
+          <div className="product-image-wrapper">
+            <img
+              src={`http://localhost:3001${product.images?.[0]}`}
+              alt={product.name}
+              onError={(e) => (e.target.src = "/default-product.jpg")}
+              className="product-image"
+            />
+          </div>
 
-          <div className="product-actions">
-            <button className="btn btn-primary" onClick={handleAddToCart}>
-              <FiShoppingCart /> Add to Cart
-            </button>
-            <button className="btn btn-secondary" onClick={handleAddToWishlist}>
-              <FiHeart /> Add to Wishlist
-            </button>
+          <div className="product-info-wrapper">
+            <h1 className="product-name">{product.name}</h1>
+            <p className="product-price">${product.price.toFixed(2)}</p>
+            <p className="product-description">
+              {product.description || "No description provided."}
+            </p>
+            <p className="product-meta"><strong>Category:</strong> {product.category}</p>
+            <p className="product-meta"><strong>Stock:</strong> {product.stock}</p>
+
+            <div className="product-buttons">
+              <button className="btn btn-primary" onClick={handleAddToCart}>
+                <FiShoppingCart /> Add to Cart
+              </button>
+              <button className="btn btn-outline-secondary ms-2" onClick={handleAddToWishlist}>
+                <FiHeart /> Add to Wishlist
+              </button>
+            </div>
           </div>
         </div>
       </div>

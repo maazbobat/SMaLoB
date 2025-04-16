@@ -7,6 +7,7 @@ const http = require('http');
 const { Server } = require("socket.io");
 const setupWebSocket = require('./WebSocket');
 
+
 // Import Routes
 const authRoutes = require('./routes/authRoutes');
 const vendorRoutes = require("./routes/vendorRoutes");
@@ -14,10 +15,12 @@ const adminRoutes = require("./routes/adminRoutes");
 const orderRoutes = require("./routes/orderRoutes"); 
 const wishlistRoutes = require("./routes/wishlistRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 
 const { authenticate } = require('./middleware/authMiddleware');
 
 const app = express();
+const path = require('path');
 const PORT = process.env.PORT || 3001; // Default to 3001 if PORT is undefined
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -34,7 +37,7 @@ io.on("connection", (socket) => {
     console.log("❌ User Disconnected");
   });
 });
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Middleware
 app.use(cors({ origin: process.env.BASE_URL, credentials: true }));
 app.use(express.json());
@@ -67,6 +70,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use("/api/vendors", require("./routes/vendorRoutes"));
+app.use('/api/upload', uploadRoutes);
 
 app._router.stack.forEach((r) => {
   if (r.route && r.route.path) {

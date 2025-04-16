@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Navbar, Nav, NavDropdown, Container, Form, FormControl, Button, Badge } from "react-bootstrap";
 import { FiUser, FiSettings, FiLogOut, FiShoppingCart, FiHeart, FiSearch } from "react-icons/fi";
 import { FaChevronUp } from "react-icons/fa";
@@ -7,11 +7,13 @@ import logo from "../../assets/logo/logo_transparent.png";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../api/api";
 
+
 const CustomerNavbar = () => {
   const { user, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -46,8 +48,9 @@ const CustomerNavbar = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    console.log("🔍 Searching for:", searchQuery);
-    // Implement search functionality
+    if (searchQuery.trim()) {
+      navigate(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
   };
 
   return (

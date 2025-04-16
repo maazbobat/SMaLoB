@@ -4,6 +4,19 @@ const { authenticate, authorize } = require("../middleware/authMiddleware");
 const Vendor = require("../models/Vendor");
 const Product = require("../models/Product"); 
 const Order = require("../models/Order");
+const multer = require("multer");
+const path = require("path");
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}-${Math.random().toString(36).substring(2)}${ext}`);
+  }
+});
+
+const upload = multer({ storage });
 
 // ✅ Test Route
 router.get("/test", (req, res) => {
@@ -44,38 +57,44 @@ router.get("/profile", authenticate, authorize("Vendor"), async (req, res) => {
     }
 });
 
-router.post("/products", authenticate, authorize("Vendor"), async (req, res) => {
-  try {
-      const { name, description, price, stock, category, images } = req.body;
+router.post(
+  "/products",
+  authenticate,
+  authorize("Vendor"),
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      const { name, description, price, stock, category } = req.body;
 
       if (!name || !price || !stock || !category) {
-          return res.status(400).json({ message: "All fields are required." });
+        return res.status(400).json({ message: "All fields are required." });
       }
 
       const vendor = await Vendor.findById(req.user.userId);
       if (!vendor) {
-          return res.status(404).json({ message: "Vendor not found" });
+        return res.status(404).json({ message: "Vendor not found" });
       }
 
-      // ✅ Create and save product
+      const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
       const newProduct = new Product({
-          name,
-          description,
-          price,
-          stock,
-          category,
-          images,
-          vendor: vendor._id, // ✅ Associate product with vendor
+        name,
+        description,
+        price,
+        stock,
+        category,
+        images: imagePath ? [imagePath] : [],
+        vendor: vendor._id,
       });
 
       await newProduct.save();
-      res.status(201).json({ message: "Product added successfully", product: newProduct });
-
-  } catch (error) {
+      res.status(201).json({ message: "✅ Product added", product: newProduct });
+    } catch (error) {
       console.error("🔥 Error adding product:", error);
       res.status(500).json({ message: "Server error" });
+    }
   }
-});
+);
 
 router.get("/products", authenticate, async (req, res) => {
   try {
@@ -142,6 +161,20 @@ router.put("/orders/:orderId", authenticate, authorize("Vendor"), async (req, re
 
     order.status = req.body.status;
     await order.save();
+
+    const io = req.app.get("io");
+
+order.items.forEach(item => {
+  const vendorId = item.product.vendor.toString();
+  if (vendorId === req.user.userId) {
+    io.emit(`vendor:${vendorId}`, {
+      type: "ORDER_UPDATE",
+      message: `📦 Order ${order._id} status changed to ${req.body.status}`,
+      orderId: order._id,
+      status: req.body.status,
+    });
+  }
+});
 
     res.json({ message: "✅ Order status updated", order });
   } catch (error) {
@@ -210,5 +243,62 @@ router.get("/with-products", async (req, res) => {
   }
 });
 
+// ✅ Delete a product
+router.delete("/products/:id", authenticate, authorize("Vendor"), async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    // Find the product and ensure it belongs to the logged-in vendor
+    const product = await Product.findOne({ _id: productId, vendor: req.user.userId });
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found or not authorized to delete" });
+    }
+
+    await product.deleteOne();
+    res.json({ message: "✅ Product deleted successfully" });
+  } catch (error) {
+    console.error("🔥 Error deleting product:", error);
+    res.status(500).json({ message: "Server error while deleting product" });
+  }
+});
+
+
+router.put(
+  "/products/:id",
+  authenticate,
+  authorize("Vendor"),
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      const { name, description, price, stock, category } = req.body;
+      const productId = req.params.id;
+
+      const product = await Product.findOne({ _id: productId, vendor: req.user.userId });
+
+      if (!product) {
+        return res.status(404).json({ message: "Product not found or not owned by vendor" });
+      }
+
+      const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
+      product.name = name || product.name;
+      product.description = description || product.description;
+      product.price = price || product.price;
+      product.stock = stock || product.stock;
+      product.category = category || product.category;
+
+      if (imagePath) {
+        product.images = [imagePath];
+      }
+
+      await product.save();
+      res.json({ message: "✅ Product updated", product });
+    } catch (error) {
+      console.error("🔥 Error updating product:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+);
 
 module.exports = router;

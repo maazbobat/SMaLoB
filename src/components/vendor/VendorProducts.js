@@ -13,7 +13,14 @@ const VendorProducts = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  const [formData, setFormData] = useState({ name: "", price: "", stock: "", category: "", description: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    price: "",
+    stock: "",
+    category: "",
+    description: "",
+    image: null,
+  });
 
   useEffect(() => {
     fetchProducts();
@@ -47,24 +54,57 @@ const VendorProducts = () => {
 
   const handleSave = async () => {
     try {
-      if (editingProduct) {
-        await api.put(`/vendors/products/${editingProduct._id}`, formData, {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-      } else {
-        await api.post("/vendors/products", formData, {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
+      const { name, price, stock, category, description, image } = formData;
+
+      if (!name || !price || !stock || !category) {
+        setError("Please fill out all required fields.");
+        return;
       }
+
+      const formPayload = new FormData();
+      formPayload.append("name", name);
+      formPayload.append("price", price);
+      formPayload.append("stock", stock);
+      formPayload.append("category", category);
+      formPayload.append("description", description);
+      if (image) formPayload.append("image", image);
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
+      if (editingProduct) {
+        await api.put(`/vendors/products/${editingProduct._id}`, formPayload, config);
+      } else {
+        await api.post("/vendors/products", formPayload, config);
+      }
+
       fetchProducts();
       setShowModal(false);
+      resetForm();
     } catch (err) {
       setError("Failed to save product.");
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      price: "",
+      stock: "",
+      category: "",
+      description: "",
+      image: null,
+    });
+    setEditingProduct(null);
+  };
+
   const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase())
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
+    p.category.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -81,7 +121,13 @@ const VendorProducts = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <Button variant="success" onClick={() => { setEditingProduct(null); setShowModal(true); }}>
+          <Button
+            variant="success"
+            onClick={() => {
+              resetForm();
+              setShowModal(true);
+            }}
+          >
             <FiPlus /> Add Product
           </Button>
         </InputGroup>
@@ -100,7 +146,9 @@ const VendorProducts = () => {
             </thead>
             <tbody>
               {filteredProducts.length === 0 ? (
-                <tr><td colSpan="5" className="text-center">No products found</td></tr>
+                <tr>
+                  <td colSpan="5" className="text-center">No products found</td>
+                </tr>
               ) : (
                 filteredProducts.map((product) => (
                   <tr key={product._id}>
@@ -109,7 +157,23 @@ const VendorProducts = () => {
                     <td>${product.price}</td>
                     <td>{product.stock}</td>
                     <td>
-                      <Button variant="info" size="sm" className="me-2" onClick={() => { setEditingProduct(product); setFormData(product); setShowModal(true); }}>
+                      <Button
+                        variant="info"
+                        size="sm"
+                        className="me-2"
+                        onClick={() => {
+                          setEditingProduct(product);
+                          setFormData({
+                            name: product.name,
+                            price: product.price,
+                            stock: product.stock,
+                            category: product.category,
+                            description: product.description,
+                            image: null,
+                          });
+                          setShowModal(true);
+                        }}
+                      >
                         <FiEdit /> Edit
                       </Button>
                       <Button variant="danger" size="sm" onClick={() => handleDelete(product._id)}>
@@ -124,37 +188,73 @@ const VendorProducts = () => {
         )}
       </div>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      {/* Modal for Adding/Editing Product */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>{editingProduct ? "Edit Product" : "Add New Product"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
+              <Form.Label>Product Image</Form.Label>
+              <Form.Control
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setFormData({ ...formData, image: e.target.files[0] })
+                }
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
               <Form.Label>Product Name</Form.Label>
-              <Form.Control type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+              <Form.Control
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Category</Form.Label>
-              <Form.Control type="text" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} />
+              <Form.Control
+                type="text"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Price</Form.Label>
-              <Form.Control type="number" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} />
+              <Form.Control
+                type="number"
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+              />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Stock</Form.Label>
-              <Form.Control type="number" value={formData.stock} onChange={(e) => setFormData({ ...formData, stock: e.target.value })} />
+              <Form.Control
+                type="number"
+                value={formData.stock}
+                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+              />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Description</Form.Label>
-              <Form.Control as="textarea" rows={3} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
-          <Button variant="primary" onClick={handleSave}>Save</Button>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSave}>
+            Save
+          </Button>
         </Modal.Footer>
       </Modal>
     </div>

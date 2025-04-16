@@ -6,7 +6,7 @@ import api from "../../api/api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../../styles/cart.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const CustomerCart = () => {
   const [cart, setCart] = useState({ items: [], total: 0 });
@@ -94,7 +94,9 @@ const CustomerCart = () => {
             {cart.items.map(({ product, quantity }) => (
               product && (
                 <div key={product._id} className="cart-card">
-                  <img src={product.images?.[0] || "/default-product.jpg"} alt={product.name} />
+                  <Link to={`/product/${product._id}`}>
+                                    <img src={`http://localhost:3001${product.images?.[0]}`} alt={product.name} onError={(e) => e.target.src = "/default-product.jpg"} />
+                                    </Link>
                   <div className="cart-details">
                     <h4>{product.name}</h4>
                     <p>${product.price}</p>

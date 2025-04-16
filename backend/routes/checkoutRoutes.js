@@ -65,9 +65,20 @@ router.post("/", authenticate, async (req, res) => {
 
     await newOrder.save();
 
+    const io = req.app.get("io");
+
+order.items.forEach(item => {
+  const vendorId = item.product.vendor.toString();
+  io.emit(`vendor:${vendorId}`, {
+    type: "NEW_ORDER",
+    message: `🎉 New order for ${item.product.name}`,
+    orderId: order._id,
+  });
+});
+
     // ✅ Send confirmation SMS
 await twilioClient.messages.create({
-  body: `✅ Hi ${customerInfo.fullName}, your order has been placed successfully on SMaLoB. Total: $${amount} CAD. Thank you for shopping with us!`,
+  body: `✅ Hi ${customerInfo.name}, your order has been placed successfully on SMaLoB. Total: $${amount} CAD. Thank you for shopping with us!`,
   from: process.env.TWILIO_PHONE_NUMBER,
   to: formatPhone(customerInfo.phone),
 });

@@ -4,12 +4,14 @@ import { useAuth } from "../../context/AuthContext";
 import Navbar from "./VendorNavbar";
 import { toast } from "react-toastify";
 import api from "../../api/api";
-import "/Users/maaz/Desktop/SMaLoB/src/styles/vendorDashboard.css"
+import "/Users/maaz/Desktop/SMaLoB/src/styles/vendorDashboard.css";
+import { io } from "socket.io-client";
 
 const VendorDashboard = () => {
   const { user } = useAuth();
   const [vendorData, setVendorData] = useState(null);
   const [products, setProducts] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [salesData, setSalesData] = useState({
     totalRevenue: 0,
     totalOrders: 0,
@@ -25,6 +27,23 @@ const VendorDashboard = () => {
     images: [],
   });
 
+  // 🧠 Socket.IO listener for real-time vendor notifications
+  useEffect(() => {
+    if (!user?.userId) return;
+
+    const socket = io("http://localhost:5001"); // Adjust for prod
+
+    socket.on(`vendor:${user.userId}`, (notification) => {
+      console.log("🔔 New Notification:", notification);
+      setNotifications((prev) => [notification, ...prev]);
+      toast.info(notification.message);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user?.userId]);
+
   useEffect(() => {
     fetchVendorData();
   }, []);
@@ -32,7 +51,7 @@ const VendorDashboard = () => {
   const fetchVendorData = async () => {
     try {
       if (!user?.token) throw new Error("No authentication token found.");
-  
+
       const [profileRes, salesRes] = await Promise.all([
         api.get("/vendors/profile", {
           headers: { Authorization: `Bearer ${user.token}` },
@@ -41,7 +60,7 @@ const VendorDashboard = () => {
           headers: { Authorization: `Bearer ${user.token}` },
         }),
       ]);
-  
+
       setVendorData(profileRes.data.vendor);
       setProducts(profileRes.data.vendor.products || []);
       setSalesData({
@@ -58,20 +77,56 @@ const VendorDashboard = () => {
 
   const handleAddProduct = async () => {
     try {
-      if (!newProduct.name || !newProduct.price || !newProduct.stock || !newProduct.category) {
+      const { name, price, stock, category, description, images } = newProduct;
+
+      if (!name || !price || !stock || !category) {
         toast.error("⚠️ All fields are required.");
         return;
       }
 
-      await api.post("/vendors/products", newProduct, {
+      let imageUrl = "";
+
+      if (images.length > 0) {
+        const formData = new FormData();
+        formData.append("image", images[0]);
+
+        const imageRes = await api.post("/upload/product", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${user.token}`,
+          },
+        });
+
+        imageUrl = imageRes.data.imageUrl;
+      }
+
+      const payload = {
+        name,
+        description,
+        price,
+        stock,
+        category,
+        images: imageUrl ? [imageUrl] : [],
+      };
+
+      await api.post("/vendors/products", payload, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
 
-      setNewProduct({ name: "", price: "", stock: "", category: "", description: "", images: [] });
+      setNewProduct({
+        name: "",
+        price: "",
+        stock: "",
+        category: "",
+        description: "",
+        images: [],
+      });
+
       toast.success("✅ Product added successfully!");
       fetchVendorData();
     } catch (error) {
       toast.error("❌ Failed to add product.");
+      console.error("Upload error:", error);
     }
   };
 
@@ -90,8 +145,6 @@ const VendorDashboard = () => {
     }
   };
 
-  
-
   if (loading)
     return (
       <div className="loading-container">
@@ -108,74 +161,79 @@ const VendorDashboard = () => {
 
         {/* Stats Section */}
         <div className="stats-grid">
-  <StatCard icon={<FiPackage />} title="Total Products" value={products.length} />
-  <StatCard icon={<FiDollarSign />} title="Total Revenue" value={`$${salesData.totalRevenue.toFixed(2)}`} />
-  <StatCard icon={<FiTrendingUp />} title="Revenue Growth" value={`${salesData.revenueGrowth}%`} />
-</div>
+          <StatCard icon={<FiPackage />} title="Total Products" value={products.length} />
+          <StatCard
+            icon={<FiDollarSign />}
+            title="Total Revenue"
+            value={`$${salesData.totalRevenue.toFixed(2)}`}
+          />
+          <StatCard
+            icon={<FiTrendingUp />}
+            title="Revenue Growth"
+            value={`${salesData.revenueGrowth}%`}
+          />
+        </div>
 
         {/* Product Management */}
         <div className="section-card">
           <h3 className="section-title">Manage Your Products</h3>
           <div className="grid-container">
             <input
+              type="file"
+              accept="image/*"
+              className="input-field"
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, images: [e.target.files[0]] })
+              }
+            />
+            <input
               type="text"
               placeholder="Product Name"
               className="input-field"
               value={newProduct.name}
-              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, name: e.target.value })
+              }
             />
             <input
               type="text"
               placeholder="Category"
               className="input-field"
               value={newProduct.category}
-              onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, category: e.target.value })
+              }
             />
             <input
               type="number"
               placeholder="Price"
               className="input-field"
               value={newProduct.price}
-              onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, price: e.target.value })
+              }
             />
             <input
               type="number"
               placeholder="Stock"
               className="input-field"
               value={newProduct.stock}
-              onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, stock: e.target.value })
+              }
             />
             <textarea
               placeholder="Description"
               className="input-field description-field"
               value={newProduct.description}
-              onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, description: e.target.value })
+              }
             />
           </div>
           <button className="btn-primary" onClick={handleAddProduct}>
             <FiPlus /> Add Product
           </button>
-        </div>
-
-        {/* Products List */}
-        <div className="section-card">
-          <h3 className="section-title">Your Products</h3>
-          {products.length > 0 ? (
-            <div className="grid-container">
-              {products.map((product) => (
-                <div key={product._id} className="product-card">
-                  <img src={product.images?.[0] || "/default-product.jpg"} alt={product.name} className="product-img" />
-                  <h4 className="product-name">{product.name}</h4>
-                  <p className="product-price">${product.price}</p>
-                  <button className="btn-danger" onClick={() => handleDeleteProduct(product._id)}>
-                    <FiTrash /> Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="no-data">You have no products yet.</p>
-          )}
         </div>
       </div>
     </div>

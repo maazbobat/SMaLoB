@@ -80,19 +80,6 @@ const Homepage = () => {
         </Container>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-4">
-        <Container>
-          <div className="d-flex gap-3 overflow-auto pb-3 categories-scroll">
-            {categories.map((category) => (
-              <Button key={category} variant="outline-dark" className="rounded-pill px-4 text-nowrap">
-                {category}
-              </Button>
-            ))}
-          </div>
-        </Container>
-      </section>
-
       {/* Error Message */}
       {error && <Alert variant="danger" className="text-center">{error}</Alert>}
 
@@ -108,12 +95,18 @@ const Homepage = () => {
           ) : (
             <Row className="g-4">
               {products.length > 0 ? (
-                products.slice(0, 4).map((product) => (
+                products
+  .filter((product) =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+  .slice(0, 4)
+  .map((product) => (
                   <Col md={3} key={product._id}>
                     <Card className="border-0 h-100 product-card">
                       <div className="position-relative overflow-hidden rounded-4">
                         <LazyLoadImage
-                          src={product.image || "/placeholder.jpg"}
+                          src={`http://localhost:3001${product.images?.[0]}`} alt={product.name} onError={(e) => e.target.src = "/default-product.jpg"}
                           alt={product.name}
                           effect="blur"
                           className="img-fluid"
@@ -127,9 +120,6 @@ const Homepage = () => {
                       <Card.Body className="pt-3">
                         <h5 className="mb-0">{product.name}</h5>
                         <p className="text-muted mt-2 small">{product.description}</p>
-                        <Button variant="outline-dark" size="sm" className="rounded-pill w-100">
-                          Add to Cart
-                        </Button>
                       </Card.Body>
                     </Card>
                   </Col>
