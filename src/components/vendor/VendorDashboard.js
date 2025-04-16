@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import Navbar from "./VendorNavbar";
 import { toast } from "react-toastify";
 import api from "../../api/api";
-import './styles/vendorDashboard.css';
+import '../../styles/vendorDashboard.css';  // ✅ correct path from /components/vendor/
 import { io } from "socket.io-client";
 
 const VendorDashboard = () => {
