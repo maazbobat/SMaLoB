@@ -26,7 +26,7 @@ const CustomerSettings = () => {
 
     try {
       setLoading(true);
-      await axios.put("http://localhost:3001/api/customers/change-password", passwordData, {
+      await axios.put("https://smalob.onrender.com/api/customers/change-password", passwordData, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       setMessage("✅ Password changed successfully!");

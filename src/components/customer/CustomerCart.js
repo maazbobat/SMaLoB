@@ -95,7 +95,7 @@ const CustomerCart = () => {
               product && (
                 <div key={product._id} className="cart-card">
                   <Link to={`/product/${product._id}`}>
-                                    <img src={`http://localhost:3001${product.images?.[0]}`} alt={product.name} onError={(e) => e.target.src = "/default-product.jpg"} />
+                                    <img src={`https://smalob.onrender.com${product.images?.[0]}`} alt={product.name} onError={(e) => e.target.src = "/default-product.jpg"} />
                                     </Link>
                   <div className="cart-details">
                     <h4>{product.name}</h4>

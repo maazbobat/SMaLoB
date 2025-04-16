@@ -25,7 +25,7 @@ const AdminUsers = () => {
     setLoading(true);
     try {
       if (!user?.token) throw new Error("No authentication token found.");
-      const response = await axios.get("http://localhost:3001/api/admin/users", {
+      const response = await axios.get("https://smalob.onrender.com/api/admin/users", {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       setUsers(response.data);
@@ -40,7 +40,7 @@ const AdminUsers = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
-      await axios.delete(`http://localhost:3001/api/admin/users/${id}`, {
+      await axios.delete(`https://smalob.onrender.com/api/admin/users/${id}`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       setUsers(users.filter((u) => u._id !== id));
@@ -53,8 +53,8 @@ const AdminUsers = () => {
   const handleSave = async () => {
     try {
       const url = editingUser
-        ? `http://localhost:3001/api/admin/users/${editingUser._id}`
-        : "http://localhost:3001/api/admin/users";
+        ? `https://smalob.onrender.com/api/admin/users/${editingUser._id}`
+        : "https://smalob.onrender.com/api/admin/users";
       const method = editingUser ? "put" : "post";
 
       await axios[method](url, formData, {
