@@ -1,17 +1,21 @@
 import axios from 'axios';
 import { io } from "socket.io-client";
 
+// Set base URL from .env or fallback
+const BACKEND_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:3001";
 
-const socket = io("http://localhost:3001");
-
+// Setup socket connection
+const socket = io(BACKEND_URL, {
+  transports: ['websocket'], // helps avoid polling issues
+  withCredentials: true
+});
 export { socket };
 
+// Setup axios instance
 const api = axios.create({
-  baseURL: process.env.NODE_ENV === 'production' 
-    ? '/api' 
-    : 'http://localhost:3001/api', // Match backend port
+  baseURL: `${BACKEND_URL}/api`,
   withCredentials: true,
-  timeout: 10000 // 10-second timeout
+  timeout: 10000,
 });
 
 api.interceptors.request.use((config) => {
@@ -27,7 +31,6 @@ api.interceptors.response.use(
   error => {
     const originalRequest = error.config;
     
-    // Skip interception for login endpoint
     if (originalRequest.url.includes('/auth/login')) {
       return Promise.reject(error);
     }
