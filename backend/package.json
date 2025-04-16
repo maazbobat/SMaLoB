@@ -37,6 +37,7 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "square": "^42.0.0",
+    "square-connect": "^6.20201216.0",
     "styled-components": "^6.1.14",
     "twilio": "^5.5.1",
     "validator": "^13.12.0",
