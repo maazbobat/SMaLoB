@@ -2,7 +2,7 @@ import axios from 'axios';
 import { io } from "socket.io-client";
 
 // Set base URL from .env or fallback
-const BACKEND_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:3001";
+const BACKEND_URL = process.env.REACT_APP_API_BASE_URL || "https://smalob.onrender.com";
 
 // Setup socket connection
 const socket = io(BACKEND_URL, {
