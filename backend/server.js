@@ -16,6 +16,10 @@ const orderRoutes = require("./routes/orderRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://smalobmaaz.vercel.app"
+];
 
 const { authenticate } = require('./middleware/authMiddleware');
 
@@ -39,7 +43,17 @@ io.on("connection", (socket) => {
 });
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Middleware
-app.use(cors({ origin: process.env.BASE_URL, credentials: true }));
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (e.g., mobile apps or curl)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("❌ Not allowed by CORS: " + origin));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(cookieParser());
 
