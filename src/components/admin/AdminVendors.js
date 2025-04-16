@@ -26,7 +26,7 @@ const AdminVendors = () => {
     setError("");
     try {
       if (!user?.token) throw new Error("No authentication token found.");
-      const response = await axios.get("${process.env.REACT_APP_API_BASE_URL}/api/admin/vendors", {
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/vendors`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       setVendors(response.data);
@@ -47,7 +47,7 @@ const AdminVendors = () => {
     try {
       const url = editingVendor
         ? `${process.env.REACT_APP_API_BASE_URL}/api/admin/vendors/${editingVendor._id}`
-        : "${process.env.REACT_APP_API_BASE_URL}/api/admin/vendors";
+        : `${process.env.REACT_APP_API_BASE_URL}/api/admin/vendors`;
       const method = editingVendor ? "put" : "post";
       
       await axios[method](url, newVendor, {

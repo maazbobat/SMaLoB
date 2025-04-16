@@ -25,7 +25,7 @@ const AdminUsers = () => {
     setLoading(true);
     try {
       if (!user?.token) throw new Error("No authentication token found.");
-      const response = await axios.get("${process.env.REACT_APP_API_BASE_URL}/api/admin/users", {
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/users`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       setUsers(response.data);
@@ -54,7 +54,7 @@ const AdminUsers = () => {
     try {
       const url = editingUser
         ? `${process.env.REACT_APP_API_BASE_URL}/api/admin/users/${editingUser._id}`
-        : "${process.env.REACT_APP_API_BASE_URL}/api/admin/users";
+        : `${process.env.REACT_APP_API_BASE_URL}/api/admin/users`;
       const method = editingUser ? "put" : "post";
 
       await axios[method](url, formData, {
