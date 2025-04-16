@@ -27,7 +27,7 @@ const AdminAnalytics = () => {
         }
       
         try {
-          const response = await fetch("https://smalob.onrender.com/api/admin/analytics", {
+          const response = await fetch("${process.env.REACT_APP_API_BASE_URL}/api/admin/analytics", {
             method: "GET",
             headers: {
               "Content-Type": "application/json",

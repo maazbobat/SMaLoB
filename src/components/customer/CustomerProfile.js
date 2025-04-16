@@ -14,7 +14,7 @@ const CustomerProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get("https://smalob.onrender.com/api/customers/profile", {
+        const response = await axios.get("${process.env.REACT_APP_API_BASE_URL}/api/customers/profile", {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         setProfile(response.data.customer);
@@ -31,7 +31,7 @@ const CustomerProfile = () => {
 
   const handleUpdateProfile = async (updatedData) => {
     try {
-      const response = await fetch("https://smalob.onrender.com/api/customer/profile", {
+      const response = await fetch("${process.env.REACT_APP_API_BASE_URL}/api/customer/profile", {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${user.token}`, // ✅ Ensure token is sent

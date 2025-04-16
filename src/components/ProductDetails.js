@@ -60,7 +60,7 @@ const ProductDetails = () => {
         <div className="product-details-card">
           <div className="product-image-wrapper">
             <img
-              src={`https://smalob.onrender.com${product.images?.[0]}`}
+              src={`${process.env.REACT_APP_API_BASE_URL}${product.images?.[0]}`}
               alt={product.name}
               onError={(e) => (e.target.src = "/default-product.jpg")}
               className="product-image"

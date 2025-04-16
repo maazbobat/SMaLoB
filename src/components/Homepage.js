@@ -23,8 +23,8 @@ const Homepage = () => {
       try {
         console.log("📢 Fetching vendors & products...");
         const [productsRes, vendorsRes] = await Promise.all([
-          axios.get("https://smalob.onrender.com/api/products"),
-          axios.get("https://smalob.onrender.com/api/vendors"),
+          axios.get("${process.env.REACT_APP_API_BASE_URL}/api/products"),
+          axios.get("${process.env.REACT_APP_API_BASE_URL}/api/vendors"),
         ]);
 
         const filteredVendors = vendorsRes.data.filter((vendor) => vendor.role === "Vendor");
@@ -106,7 +106,7 @@ const Homepage = () => {
                     <Card className="border-0 h-100 product-card">
                       <div className="position-relative overflow-hidden rounded-4">
                         <LazyLoadImage
-                          src={`https://smalob.onrender.com${product.images?.[0]}`} alt={product.name} onError={(e) => e.target.src = "/default-product.jpg"}
+                          src={`${process.env.REACT_APP_API_BASE_URL}${product.images?.[0]}`} alt={product.name} onError={(e) => e.target.src = "/default-product.jpg"}
                           alt={product.name}
                           effect="blur"
                           className="img-fluid"

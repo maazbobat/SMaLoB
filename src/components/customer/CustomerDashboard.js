@@ -124,7 +124,7 @@ const CustomerDashboard = () => {
               filteredProducts.map((product) => (
                 <div key={product._id} className="product-card glass-card">
                   <Link to={`/product/${product._id}`}>
-                  <img src={`https://smalob.onrender.com${product.images?.[0]}`} alt={product.name} onError={(e) => e.target.src = "/default-product.jpg"} />
+                  <img src={`${process.env.REACT_APP_API_BASE_URL}${product.images?.[0]}`} alt={product.name} onError={(e) => e.target.src = "/default-product.jpg"} />
                   </Link>
                   <h4>{product.name}</h4>
                   <p>${product.price}</p>

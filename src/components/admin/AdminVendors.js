@@ -26,7 +26,7 @@ const AdminVendors = () => {
     setError("");
     try {
       if (!user?.token) throw new Error("No authentication token found.");
-      const response = await axios.get("https://smalob.onrender.com/api/admin/vendors", {
+      const response = await axios.get("${process.env.REACT_APP_API_BASE_URL}/api/admin/vendors", {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       setVendors(response.data);
@@ -46,8 +46,8 @@ const AdminVendors = () => {
   const handleSaveVendor = async () => {
     try {
       const url = editingVendor
-        ? `https://smalob.onrender.com/api/admin/vendors/${editingVendor._id}`
-        : "https://smalob.onrender.com/api/admin/vendors";
+        ? `${process.env.REACT_APP_API_BASE_URL}/api/admin/vendors/${editingVendor._id}`
+        : "${process.env.REACT_APP_API_BASE_URL}/api/admin/vendors";
       const method = editingVendor ? "put" : "post";
       
       await axios[method](url, newVendor, {
@@ -69,7 +69,7 @@ const AdminVendors = () => {
     if (!window.confirm("Are you sure you want to delete this vendor?")) return;
     
     try {
-      await axios.delete(`https://smalob.onrender.com/api/admin/vendors/${vendorId}`, {
+      await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/api/admin/vendors/${vendorId}`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       fetchVendors();
