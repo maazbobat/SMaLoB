@@ -5,7 +5,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const http = require('http');
 const { Server } = require("socket.io");
-const setupWebSocket = require('./WebSocket');
+const setupWebSocket = require('./websocket');
 
 
 // Import Routes
