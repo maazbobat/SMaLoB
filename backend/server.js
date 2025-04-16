@@ -29,7 +29,7 @@ const PORT = process.env.PORT || 3001; // Default to 3001 if PORT is undefined
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
   },
 });
