@@ -23,8 +23,8 @@ const Homepage = () => {
       try {
         console.log("📢 Fetching vendors & products...");
         const [productsRes, vendorsRes] = await Promise.all([
-          axios.get("${process.env.REACT_APP_API_BASE_URL}/api/products"),
-          axios.get("${process.env.REACT_APP_API_BASE_URL}/api/vendors"),
+          axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/products`),
+          axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/vendors`),
         ]);
 
         const filteredVendors = vendorsRes.data.filter((vendor) => vendor.role === "Vendor");
