@@ -18,7 +18,8 @@ const checkoutRoutes = require("./routes/checkoutRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://smalobmaaz.vercel.app"
+  "https://smalobmaaz.vercel.app",
+  "https://smalob.netlify.app",
 ];
 
 const { authenticate } = require('./middleware/authMiddleware');
